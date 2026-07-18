@@ -1,17 +1,15 @@
 package com.rina.habit_tracker.dto;
-
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UpdateHabitRequest {
-
-    private String title;
-
-    private String description;
+public class CreateRecordRequest {
 
     @NotNull
-    private Long userId;
+    private Long habitId;
+
+    private String content;
+    private String imageUrl;
 }

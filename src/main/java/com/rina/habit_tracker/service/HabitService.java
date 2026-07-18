@@ -78,10 +78,8 @@ public class HabitService {
         response.setDescription(habit.getDescription());
         response.setCreatedAt(habit.getCreatedAt());
         response.setUpdatedAt(habit.getUpdatedAt());
-        if (habit.getUser() != null) {
-            response.setUserId(habit.getUser().getId());
-            response.setUserName(habit.getUser().getName());
-        }
+        response.setUser(habit.getUser());
+        response.setUserName(habit.getUser().getName());
         return response;
     }
 }

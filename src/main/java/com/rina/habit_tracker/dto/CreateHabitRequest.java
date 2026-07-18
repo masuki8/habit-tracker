@@ -1,6 +1,7 @@
 package com.rina.habit_tracker.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,5 +14,6 @@ public class CreateHabitRequest {
 
     private String description;
 
+    @NotNull
     private Long userId;
 }

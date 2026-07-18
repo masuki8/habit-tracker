@@ -37,8 +37,15 @@ public class UserService {
 
     public User updateUser(Long id, UpdateUserRequest request) {
         User user = getUserById(id);
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null) {
+            user.setPassword(request.getPassword());
+        }
         return userRepository.save(user);
     }
 

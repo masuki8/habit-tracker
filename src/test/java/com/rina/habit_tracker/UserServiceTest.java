@@ -1,0 +1,32 @@
+package com.rina.habit_tracker;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.rina.habit_tracker.dto.CreateUserRequest;
+import com.rina.habit_tracker.entity.User;
+import com.rina.habit_tracker.service.UserService;
+
+@SpringBootTest
+@Transactional
+class UserServiceTest {
+
+    @Autowired
+    private UserService userService;
+
+    @Test
+    void shouldPersistNameWhenCreatingUser() {
+        CreateUserRequest request = new CreateUserRequest();
+        request.setName("Test User");
+        request.setEmail("service@example.com");
+        request.setPassword("password123");
+
+        User createdUser = userService.createUser(request);
+
+        assertThat(createdUser.getId()).isNotNull();
+        assertThat(createdUser.getName()).isEqualTo("Test User");
+    }
+}

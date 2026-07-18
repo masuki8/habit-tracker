@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rina.habit_tracker.dto.CreateUserRequest;
-import com.rina.habit_tracker.entity.User;
+import com.rina.habit_tracker.dto.UserResponse;
 import com.rina.habit_tracker.service.UserService;
 
 @SpringBootTest
@@ -24,7 +24,7 @@ class UserServiceTest {
         request.setEmail("service@example.com");
         request.setPassword("password123");
 
-        User createdUser = userService.createUser(request);
+        UserResponse createdUser = userService.createUser(request);
 
         assertThat(createdUser.getId()).isNotNull();
         assertThat(createdUser.getName()).isEqualTo("Test User");

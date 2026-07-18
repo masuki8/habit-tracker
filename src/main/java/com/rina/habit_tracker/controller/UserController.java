@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rina.habit_tracker.dto.CreateUserRequest;
 import com.rina.habit_tracker.dto.UpdateUserRequest;
-import com.rina.habit_tracker.entity.User;
+import com.rina.habit_tracker.dto.UserResponse;
 import com.rina.habit_tracker.service.UserService;
 
 import jakarta.validation.Valid;
@@ -31,23 +31,23 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
+    public UserResponse getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@Valid @RequestBody CreateUserRequest request) {
+    public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
         return userService.createUser(request);
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+    public UserResponse updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         return userService.updateUser(id, request);
     }
 

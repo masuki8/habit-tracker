@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rina.habit_tracker.dto.CreateHabitRequest;
+import com.rina.habit_tracker.dto.HabitResponse;
 import com.rina.habit_tracker.dto.UpdateHabitRequest;
-import com.rina.habit_tracker.entity.Habit;
 import com.rina.habit_tracker.service.HabitService;
 
 import jakarta.validation.Valid;
@@ -31,23 +31,23 @@ public class HabitController {
     }
 
     @GetMapping
-    public List<Habit> getAllHabits() {
+    public List<HabitResponse> getAllHabits() {
         return habitService.getAllHabits();
     }
 
     @GetMapping("/{id}")
-    public Habit getHabitById(@PathVariable Long id) {
+    public HabitResponse getHabitById(@PathVariable Long id) {
         return habitService.getHabitById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Habit createHabit(@Valid @RequestBody CreateHabitRequest request) {
+    public HabitResponse createHabit(@Valid @RequestBody CreateHabitRequest request) {
         return habitService.createHabit(request);
     }
 
     @PutMapping("/{id}")
-    public Habit updateHabit(@PathVariable Long id, @Valid @RequestBody UpdateHabitRequest request) {
+    public HabitResponse updateHabit(@PathVariable Long id, @Valid @RequestBody UpdateHabitRequest request) {
         return habitService.updateHabit(id, request);
     }
 

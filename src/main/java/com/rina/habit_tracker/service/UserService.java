@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.rina.habit_tracker.dto.CreateUserRequest;
 import com.rina.habit_tracker.dto.UpdateUserRequest;
@@ -15,16 +16,18 @@ import com.rina.habit_tracker.repository.UserRepository;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponse createUser(CreateUserRequest request) {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         return mapToUserResponse(userRepository.save(user));
     }
 
@@ -51,7 +54,7 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null) {
-            user.setPassword(request.getPassword());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         return mapToUserResponse(userRepository.save(user));
     }

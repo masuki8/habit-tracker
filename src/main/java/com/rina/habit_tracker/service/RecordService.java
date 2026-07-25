@@ -5,9 +5,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.rina.habit_tracker.dto.CreateRecordRequest;
-import com.rina.habit_tracker.dto.RecordResponse;
-import com.rina.habit_tracker.dto.UpdateRecordRequest;
+import com.rina.habit_tracker.dto.request.CreateRecordRequest;
+import com.rina.habit_tracker.dto.request.UpdateRecordRequest;
+import com.rina.habit_tracker.dto.response.RecordResponse;
 import com.rina.habit_tracker.entity.Habit;
 import com.rina.habit_tracker.entity.Record;
 import com.rina.habit_tracker.repository.HabitRepository;
@@ -25,13 +25,13 @@ public class RecordService {
     }
 
     public RecordResponse createRecord(CreateRecordRequest request) {
-        Habit habit = habitRepository.findById(request.getHabitId())
+        Habit habit = habitRepository.findById(request.habitId())
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
 
         Record record = new Record();
         record.setHabit(habit);
-        record.setContent(request.getContent());
-        record.setImageUrl(request.getImageUrl());
+        record.setContent(request.content());
+        record.setImageUrl(request.imageUrl());
         return mapToRecordResponse(recordRepository.save(record));
     }
 
@@ -51,17 +51,15 @@ public class RecordService {
         Record record = recordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Record not found"));
 
-        if (request.getContent() != null) {
-            record.setContent(request.getContent());
+        if (request.content() != null) {
+            record.setContent(request.content());
         }
-        if (request.getImageUrl() != null) {
-            record.setImageUrl(request.getImageUrl());
+        if (request.imageUrl() != null) {
+            record.setImageUrl(request.imageUrl());
         }
-        if (request.getHabitId() != null) {
-            Habit habit = habitRepository.findById(request.getHabitId())
-                    .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
-            record.setHabit(habit);
-        }
+        Habit habit = habitRepository.findById(request.habitId())
+                .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+        record.setHabit(habit);
         return mapToRecordResponse(recordRepository.save(record));
     }
 
@@ -72,13 +70,11 @@ public class RecordService {
     }
 
     private RecordResponse mapToRecordResponse(Record record) {
-        RecordResponse response = new RecordResponse();
-        response.setId(record.getId());
-        response.setHabit(record.getHabit());
-        response.setContent(record.getContent());
-        response.setImageUrl(record.getImageUrl());
-        response.setCreatedAt(record.getCreatedAt());
-        response.setUpdatedAt(record.getUpdatedAt());
-        return response;
+        return new RecordResponse(
+            record.getId(),
+            record.getHabit().getId(),
+            record.getContent(),
+            record.getImageUrl(),
+            record.getCreatedAt().toLocalDate());
     }
 }

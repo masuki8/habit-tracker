@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rina.habit_tracker.dto.CreateHabitRequest;
-import com.rina.habit_tracker.dto.HabitResponse;
-import com.rina.habit_tracker.dto.UpdateHabitRequest;
+import com.rina.habit_tracker.dto.request.CreateHabitRequest;
+import com.rina.habit_tracker.dto.request.UpdateHabitRequest;
+import com.rina.habit_tracker.dto.response.HabitResponse;
 import com.rina.habit_tracker.service.HabitService;
 
 import jakarta.validation.Valid;

@@ -13,7 +13,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +22,7 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.rina.habit_tracker.repository.UserRepository;
+import com.rina.habit_tracker.security.AuthenticatedUser;
 import com.rina.habit_tracker.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -56,10 +56,8 @@ public class SecurityConfig {
     @Bean
     UserDetailsService userDetailsService(UserRepository userRepository) {
         return email -> userRepository.findByEmail(email)
-                .map(user -> User.withUsername(user.getEmail())
-                        .password(user.getPassword())
-                        .authorities(List.of())
-                        .build())
+                .map(user -> new AuthenticatedUser(
+                        user.getId(), user.getEmail(), user.getPassword(), List.of()))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

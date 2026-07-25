@@ -43,9 +43,13 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
-    public UserResponse updateUser(Long id, UpdateUserRequest request) {
+    public UserResponse updateUser(Long id, Long authenticatedUserId, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (!user.getId().equals(authenticatedUserId)) {
+            throw new IllegalArgumentException("You cannot update this user");
+        }
 
         if (request.name() != null) {
             user.setName(request.name());
@@ -59,9 +63,14 @@ public class UserService {
         return mapToUserResponse(userRepository.save(user));
     }
 
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id, Long authenticatedUserId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        
+        if (!user.getId().equals(authenticatedUserId)) {
+            throw new IllegalArgumentException("You cannot delete this user");
+        }
+
         userRepository.delete(user);
     }
 

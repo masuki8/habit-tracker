@@ -3,6 +3,7 @@ package com.rina.habit_tracker.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rina.habit_tracker.dto.request.CreateUserRequest;
 import com.rina.habit_tracker.dto.request.UpdateUserRequest;
 import com.rina.habit_tracker.dto.response.UserResponse;
+import com.rina.habit_tracker.security.AuthenticatedUser;
 import com.rina.habit_tracker.service.UserService;
 
 import jakarta.validation.Valid;
@@ -47,13 +49,18 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserResponse updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
-        return userService.updateUser(id, request);
+    public UserResponse updateUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+            @Valid @RequestBody UpdateUserRequest request) {
+        return userService.updateUser(id, authenticatedUser.id(), request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public void deleteUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        userService.deleteUser(id, authenticatedUser.id());
     }
 }

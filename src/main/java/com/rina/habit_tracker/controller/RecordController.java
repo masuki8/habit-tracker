@@ -23,7 +23,7 @@ import com.rina.habit_tracker.service.RecordService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("records")
+@RequestMapping("/records")
 public class RecordController {
 
     private final RecordService recordService;
@@ -33,7 +33,7 @@ public class RecordController {
     }
 
     @GetMapping
-    public List<RecordResponse> getAllRecords() {
+    public List<RecordResponse> getAllRecords(@PathVariable Long habitId) {
         return recordService.getAllRecords();
     }
 

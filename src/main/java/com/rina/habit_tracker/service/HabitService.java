@@ -43,6 +43,13 @@ public class HabitService {
                 .collect(Collectors.toList());
     }
 
+    public List<HabitResponse> getUserHabits(Long userId) {
+        return habitRepository.findByUserId(userId)
+                .stream()
+                .map(this::mapToHabitResponse)
+                .collect(Collectors.toList());
+    }
+
     public HabitResponse getHabitById(Long id) {
         return habitRepository.findById(id)
                 .map(this::mapToHabitResponse)
@@ -78,10 +85,13 @@ public class HabitService {
     }
 
     private HabitResponse mapToHabitResponse(Habit habit) {
+        int recordsCount = habit.getRecords().size();
         return new HabitResponse(
             habit.getId(),
             habit.getTitle(),
             habit.getDescription(),
-            habit.getUser().getId());
+            habit.getUser().getId(),
+            recordsCount
+        );
     }
 }

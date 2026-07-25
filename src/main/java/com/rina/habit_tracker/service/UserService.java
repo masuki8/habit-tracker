@@ -3,12 +3,12 @@ package com.rina.habit_tracker.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-import com.rina.habit_tracker.dto.CreateUserRequest;
-import com.rina.habit_tracker.dto.UpdateUserRequest;
-import com.rina.habit_tracker.dto.UserResponse;
+import com.rina.habit_tracker.dto.request.CreateUserRequest;
+import com.rina.habit_tracker.dto.request.UpdateUserRequest;
+import com.rina.habit_tracker.dto.response.UserResponse;
 import com.rina.habit_tracker.entity.User;
 import com.rina.habit_tracker.repository.UserRepository;
 
@@ -25,9 +25,9 @@ public class UserService {
 
     public UserResponse createUser(CreateUserRequest request) {
         User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
         return mapToUserResponse(userRepository.save(user));
     }
 
@@ -47,14 +47,14 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (request.getName() != null) {
-            user.setName(request.getName());
+        if (request.name() != null) {
+            user.setName(request.name());
         }
-        if (request.getEmail() != null) {
-            user.setEmail(request.getEmail());
+        if (request.email() != null) {
+            user.setEmail(request.email());
         }
-        if (request.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (request.password() != null) {
+            user.setPassword(passwordEncoder.encode(request.password()));
         }
         return mapToUserResponse(userRepository.save(user));
     }
@@ -66,12 +66,10 @@ public class UserService {
     }
 
     private UserResponse mapToUserResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setId(user.getId());
-        response.setName(user.getName());
-        response.setEmail(user.getEmail());
-        response.setCreatedAt(user.getCreatedAt());
-        response.setUpdatedAt(user.getUpdatedAt());
-        return response;
+        return new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail()
+        );
     }
 }

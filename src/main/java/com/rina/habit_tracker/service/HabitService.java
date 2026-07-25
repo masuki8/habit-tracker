@@ -5,9 +5,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.rina.habit_tracker.dto.CreateHabitRequest;
-import com.rina.habit_tracker.dto.HabitResponse;
-import com.rina.habit_tracker.dto.UpdateHabitRequest;
+import com.rina.habit_tracker.dto.request.CreateHabitRequest;
+import com.rina.habit_tracker.dto.request.UpdateHabitRequest;
+import com.rina.habit_tracker.dto.response.HabitResponse;
 import com.rina.habit_tracker.entity.Habit;
 import com.rina.habit_tracker.entity.User;
 import com.rina.habit_tracker.repository.HabitRepository;
@@ -25,12 +25,12 @@ public class HabitService {
     }
 
     public HabitResponse createHabit(CreateHabitRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Habit habit = new Habit();
-        habit.setTitle(request.getTitle());
-        habit.setDescription(request.getDescription());
+        habit.setTitle(request.title());
+        habit.setDescription(request.description());
         habit.setUser(user);
         return mapToHabitResponse(habitRepository.save(habit));
     }
@@ -51,14 +51,14 @@ public class HabitService {
         Habit habit = habitRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
 
-        if (request.getTitle() != null) {
-            habit.setTitle(request.getTitle());
+        if (request.title() != null) {
+            habit.setTitle(request.title());
         }
-        if (request.getDescription() != null) {
-            habit.setDescription(request.getDescription());
+        if (request.description() != null) {
+            habit.setDescription(request.description());
         }
-        if (request.getUserId() != null) {
-            User user = userRepository.findById(request.getUserId())
+        if (request.userId() != null) {
+            User user = userRepository.findById(request.userId())
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             habit.setUser(user);
         }
@@ -72,14 +72,10 @@ public class HabitService {
     }
 
     private HabitResponse mapToHabitResponse(Habit habit) {
-        HabitResponse response = new HabitResponse();
-        response.setId(habit.getId());
-        response.setTitle(habit.getTitle());
-        response.setDescription(habit.getDescription());
-        response.setCreatedAt(habit.getCreatedAt());
-        response.setUpdatedAt(habit.getUpdatedAt());
-        response.setUser(habit.getUser());
-        response.setUserName(habit.getUser().getName());
-        return response;
+        return new HabitResponse(
+            habit.getId(),
+            habit.getTitle(),
+            habit.getDescription(),
+            habit.getUser().getId());
     }
 }

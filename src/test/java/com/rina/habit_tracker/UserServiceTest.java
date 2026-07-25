@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.rina.habit_tracker.dto.CreateUserRequest;
-import com.rina.habit_tracker.dto.UserResponse;
+import com.rina.habit_tracker.dto.request.CreateUserRequest;
+import com.rina.habit_tracker.dto.response.UserResponse;
 import com.rina.habit_tracker.service.UserService;
 
 @SpringBootTest
@@ -19,14 +19,15 @@ class UserServiceTest {
 
     @Test
     void shouldPersistNameWhenCreatingUser() {
-        CreateUserRequest request = new CreateUserRequest();
-        request.setName("Test User");
-        request.setEmail("service@example.com");
-        request.setPassword("password123");
+        CreateUserRequest request = new CreateUserRequest(
+            "Test User",
+            "service@example.com",
+            "password123"
+        );
 
         UserResponse createdUser = userService.createUser(request);
 
-        assertThat(createdUser.getId()).isNotNull();
-        assertThat(createdUser.getName()).isEqualTo("Test User");
+        assertThat(createdUser.id()).isNotNull();
+        assertThat(createdUser.name()).isEqualTo("Test User");
     }
 }

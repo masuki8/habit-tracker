@@ -3,7 +3,9 @@ package com.rina.habit_tracker.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.rina.habit_tracker.dto.request.CreateHabitRequest;
 import com.rina.habit_tracker.dto.request.UpdateHabitRequest;
@@ -24,8 +26,8 @@ public class HabitService {
         this.userRepository = userRepository;
     }
 
-    public HabitResponse createHabit(CreateHabitRequest request) {
-        User user = userRepository.findById(request.userId())
+    public HabitResponse createHabit(Long userId, CreateHabitRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Habit habit = new Habit();
@@ -47,9 +49,13 @@ public class HabitService {
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
     }
 
-    public HabitResponse updateHabit(Long id, UpdateHabitRequest request) {
+    public HabitResponse updateHabit(Long id, Long userId, UpdateHabitRequest request) {
         Habit habit = habitRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+
+        if (!habit.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot update this habit");
+        }
 
         if (request.title() != null) {
             habit.setTitle(request.title());
@@ -57,17 +63,17 @@ public class HabitService {
         if (request.description() != null) {
             habit.setDescription(request.description());
         }
-        if (request.userId() != null) {
-            User user = userRepository.findById(request.userId())
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-            habit.setUser(user);
-        }
         return mapToHabitResponse(habitRepository.save(habit));
     }
 
-    public void deleteHabit(Long id) {
+    public void deleteHabit(Long id, Long userId) {
         Habit habit = habitRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+
+        if (!habit.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this habit");
+        }
+
         habitRepository.delete(habit);
     }
 

@@ -3,6 +3,7 @@ package com.rina.habit_tracker.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rina.habit_tracker.dto.request.CreateHabitRequest;
 import com.rina.habit_tracker.dto.request.UpdateHabitRequest;
 import com.rina.habit_tracker.dto.response.HabitResponse;
+import com.rina.habit_tracker.security.AuthenticatedUser;
 import com.rina.habit_tracker.service.HabitService;
 
 import jakarta.validation.Valid;
@@ -42,18 +44,25 @@ public class HabitController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public HabitResponse createHabit(@Valid @RequestBody CreateHabitRequest request) {
-        return habitService.createHabit(request);
+    public HabitResponse createHabit(
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+            @Valid @RequestBody CreateHabitRequest request) {
+        return habitService.createHabit(authenticatedUser.id(), request);
     }
 
     @PutMapping("/{id}")
-    public HabitResponse updateHabit(@PathVariable Long id, @Valid @RequestBody UpdateHabitRequest request) {
-        return habitService.updateHabit(id, request);
+    public HabitResponse updateHabit(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+            @Valid @RequestBody UpdateHabitRequest request) {
+        return habitService.updateHabit(id, authenticatedUser.id(), request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteHabit(@PathVariable Long id) {
-        habitService.deleteHabit(id);
+    public void deleteHabit(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        habitService.deleteHabit(id, authenticatedUser.id());
     }
 }

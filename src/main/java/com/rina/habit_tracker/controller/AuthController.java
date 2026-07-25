@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rina.habit_tracker.dto.request.LoginRequest;
 import com.rina.habit_tracker.dto.response.LoginResponse;
-import com.rina.habit_tracker.security.JwtService;
+import com.rina.habit_tracker.service.JwtService;
 
 import jakarta.validation.Valid;
 

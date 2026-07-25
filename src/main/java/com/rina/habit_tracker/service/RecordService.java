@@ -1,6 +1,10 @@
 package com.rina.habit_tracker.service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +12,8 @@ import org.springframework.stereotype.Service;
 import com.rina.habit_tracker.dto.request.CreateRecordRequest;
 import com.rina.habit_tracker.dto.request.UpdateRecordRequest;
 import com.rina.habit_tracker.dto.response.RecordResponse;
+import com.rina.habit_tracker.dto.response.DailyRecordsResponse;
+import com.rina.habit_tracker.dto.response.MonthlyRecordsResponse;
 import com.rina.habit_tracker.entity.Habit;
 import com.rina.habit_tracker.entity.Record;
 import com.rina.habit_tracker.repository.HabitRepository;
@@ -45,6 +51,13 @@ public class RecordService {
                 .collect(Collectors.toList());
     }
 
+    public List<RecordResponse> getHabitRecords(Long habitId) {
+        return recordRepository.findByHabitId(habitId)
+                .stream()
+                .map(this::mapToRecordResponse)
+                .collect(Collectors.toList());
+    }
+
     public RecordResponse getRecordById(Long id) {
         return recordRepository.findById(id)
                 .map(this::mapToRecordResponse)
@@ -77,6 +90,21 @@ public class RecordService {
             throw new IllegalArgumentException("You cannot delete this record");
         }
         recordRepository.delete(record);
+    }
+
+    public MonthlyRecordsResponse getMonthlyRecords(Long habitId, YearMonth month) {
+        Map<LocalDate, Long> recordsByDate = recordRepository
+                .findByHabitIdAndRecodeDateBetweenOrderByRecodeDateAsc(habitId, month.atDay(1), month.atEndOfMonth())
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Record::getRecodeDate,
+                        LinkedHashMap::new,
+                        Collectors.counting()));
+
+        List<DailyRecordsResponse> records = recordsByDate.entrySet().stream()
+                .map(entry -> new DailyRecordsResponse(entry.getKey(), Math.toIntExact(entry.getValue())))
+                .toList();
+        return new MonthlyRecordsResponse(month, records);
     }
 
     private RecordResponse mapToRecordResponse(Record record) {

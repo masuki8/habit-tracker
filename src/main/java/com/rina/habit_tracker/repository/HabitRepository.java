@@ -4,5 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.rina.habit_tracker.entity.Habit;
 
+import java.util.List;
+
+
 public interface HabitRepository extends JpaRepository<Habit, Long> {
+    List<Habit> findByUserId(Long userId);
 }

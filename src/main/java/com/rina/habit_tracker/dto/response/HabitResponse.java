@@ -4,5 +4,7 @@ public record HabitResponse(
         Long id,
         String title,
         String description,
-        Long userId) {
+        Long userId,
+        int recordsCount
+) {
 }

@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rina.habit_tracker.dto.request.CreateHabitRequest;
 import com.rina.habit_tracker.dto.request.UpdateHabitRequest;
 import com.rina.habit_tracker.dto.response.HabitResponse;
+import com.rina.habit_tracker.dto.response.RecordResponse;
 import com.rina.habit_tracker.security.AuthenticatedUser;
 import com.rina.habit_tracker.service.HabitService;
+import com.rina.habit_tracker.service.RecordService;
 
 import jakarta.validation.Valid;
 
@@ -26,10 +28,12 @@ import jakarta.validation.Valid;
 @RequestMapping("/habits")
 public class HabitController {
 
+    private final RecordService recordService;
     private final HabitService habitService;
 
-    public HabitController(HabitService habitService) {
+    public HabitController(HabitService habitService, RecordService recordService) {
         this.habitService = habitService;
+        this.recordService = recordService;
     }
 
     @GetMapping
@@ -64,5 +68,10 @@ public class HabitController {
             @PathVariable Long id,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
         habitService.deleteHabit(id, authenticatedUser.id());
+    }
+
+    @GetMapping("/{id}/records")
+    public List<RecordResponse> getHabitRecords(@PathVariable Long id) {
+        return recordService.getHabitRecords(id);
     }
 }

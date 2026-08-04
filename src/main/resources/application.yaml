@@ -15,6 +15,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
   jwt:
     secret: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
     expiration-minutes: 60

@@ -4,6 +4,16 @@ type ApiFetchOptions = RequestInit & {
   token?: string;
 };
 
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
   const { token, headers, ...requestOptions } = options;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -23,7 +33,10 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
 
   if (!response.ok) {
     const message = await response.text();
-    throw new Error(message || `API request failed (${response.status})`);
+    throw new ApiError(
+      response.status,
+      message || `API request failed (${response.status})`
+    );
   }
 
   if (response.status === 204) {

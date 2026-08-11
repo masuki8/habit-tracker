@@ -9,7 +9,9 @@ import { Card } from "@/components/ui/card";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
+import { saveFlashMessage } from "@/lib/flash-message";
+import { saveLoginEmail } from "@/lib/login-email";
 
 type UserResponse = {
   id: number;
@@ -46,18 +48,35 @@ export default function SignUp() {
     }
 
     setIsSubmitting(true);
+    const trimmedEmail = email.trim();
 
     try {
       await apiFetch<UserResponse>("/users", {
         method: "POST",
         body: JSON.stringify({
           name: name.trim(),
-          email: email.trim(),
+          email: trimmedEmail,
           password,
         }),
       });
-      router.push("/login?registered=true");
+      saveFlashMessage({
+        message: "アカウントが作成されました。ログインしてください。",
+        variant: "success",
+      });
+      saveLoginEmail(trimmedEmail);
+      router.push("/login");
     } catch (requestError) {
+      // Emailがすでに登録済の場合
+      if (requestError instanceof ApiError && requestError.status === 409) {
+        saveFlashMessage({
+          message: "このメールアドレスは登録済みです。ログインしてください。",
+          variant: "info",
+        });
+        saveLoginEmail(trimmedEmail);
+        router.push("/login");
+        return;
+      }
+
       setError(
         requestError instanceof Error && requestError.message
           ? requestError.message

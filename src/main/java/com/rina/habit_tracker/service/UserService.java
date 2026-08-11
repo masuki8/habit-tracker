@@ -3,8 +3,10 @@ package com.rina.habit_tracker.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.rina.habit_tracker.dto.request.CreateUserRequest;
 import com.rina.habit_tracker.dto.request.UpdateUserRequest;
@@ -24,6 +26,10 @@ public class UserService {
     }
 
     public UserResponse createUser(CreateUserRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already registered");
+        }
+
         User user = new User();
         user.setName(request.name());
         user.setEmail(request.email());

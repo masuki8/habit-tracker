@@ -22,3 +22,8 @@ export function hasValidSession() {
     Boolean(accessToken) && Number.isFinite(expiresAt) && expiresAt > Date.now()
   );
 }
+
+export function getAccessToken() {
+  if (!hasValidSession()) return null;
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
+}

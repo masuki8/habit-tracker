@@ -36,9 +36,14 @@ public class HabitController {
         this.recordService = recordService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<HabitResponse> getAllHabits() {
         return habitService.getAllHabits();
+    }
+
+    @GetMapping
+    public List<HabitResponse> getMyHabits(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        return habitService.getUserHabits(authenticatedUser.id());
     }
 
     @GetMapping("/{id}")

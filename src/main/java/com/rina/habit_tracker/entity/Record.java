@@ -40,7 +40,7 @@ public class Record {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDate recodeDate;
+    private LocalDate recordDate;
     
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

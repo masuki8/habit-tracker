@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { X } from 'lucide-react';
 
 import {
   clearFlashMessage,
@@ -52,7 +53,7 @@ export function Toast() {
         aria-label="通知を閉じる"
         onClick={clearFlashMessage}
       >
-        <span aria-hidden="true">×</span>
+        <X size={20} aria-hidden="true" />
       </button>
     </div>
   );

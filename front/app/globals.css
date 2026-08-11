@@ -1,15 +1,54 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eaedef;
+  --foreground: #1d1d1d;
+}
+
+@theme {
+  --color-primary: #42585e;
+  --color-primary-hover: #53747b;
+  --color-primary-light: #8ebcc8;
+  --color-primary-text: #eaedef;
+  --color-base-white: #fdfdfd;
+  --color-secondary: #e96b3c;
+  --color-surface: #fcfcfc;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-border: var(--color-gray-300);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+@utility form-control {
+  @apply w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5
+  text-gray-900 outline-none transition placeholder:text-gray-400 
+  focus:border-primary focus:ring-2 focus:ring-primary-light 
+  disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility title-border {
+  @apply mt-4 border-b-[0.5px] w-full mx-auto text-secondary;
+}
+
+@layer base {
+  header {
+    @apply bg-base-white;
+  }
+  h1 {
+    @apply text-3xl font-bold leading-tight;
+  }
+
+  h2 {
+    @apply text-xl font-semibold leading-tight;
+  }
+
+  h3 {
+    @apply text-lg font-semibold leading-snug;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

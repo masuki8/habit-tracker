@@ -30,7 +30,7 @@ export default function RootLayout({
     >
       <body className="h-screen flex flex-col">
         <Header />
-        <div className="flex flex-1 overflow-hidden bg-[#eaedef]">
+        <div className="flex flex-1 overflow-scroll">
           {children}
         </div>
       </body>

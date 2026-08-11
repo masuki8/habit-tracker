@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 
 import com.rina.habit_tracker.dto.request.CreateRecordRequest;
 import com.rina.habit_tracker.dto.request.UpdateRecordRequest;
-import com.rina.habit_tracker.dto.response.RecordResponse;
 import com.rina.habit_tracker.dto.response.DailyRecordsResponse;
 import com.rina.habit_tracker.dto.response.MonthlyRecordsResponse;
+import com.rina.habit_tracker.dto.response.RecordResponse;
 import com.rina.habit_tracker.entity.Habit;
 import com.rina.habit_tracker.entity.Record;
 import com.rina.habit_tracker.repository.HabitRepository;
@@ -94,10 +94,10 @@ public class RecordService {
 
     public MonthlyRecordsResponse getMonthlyRecords(Long habitId, YearMonth month) {
         Map<LocalDate, Long> recordsByDate = recordRepository
-                .findByHabitIdAndRecodeDateBetweenOrderByRecodeDateAsc(habitId, month.atDay(1), month.atEndOfMonth())
+                .findByHabitIdAndRecordDateBetweenOrderByRecordDateAsc(habitId, month.atDay(1), month.atEndOfMonth())
                 .stream()
                 .collect(Collectors.groupingBy(
-                        Record::getRecodeDate,
+                        Record::getRecordDate,
                         LinkedHashMap::new,
                         Collectors.counting()));
 

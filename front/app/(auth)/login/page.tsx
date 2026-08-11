@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
 
 type LoginResponse = {
@@ -22,7 +27,9 @@ export default function Login() {
 
 function LoginWithSearchParams() {
   const searchParams = useSearchParams();
-  return <LoginForm hasRegistered={searchParams.get("registered") === "true"} />;
+  return (
+    <LoginForm hasRegistered={searchParams.get("registered") === "true"} />
+  );
 }
 
 function LoginForm({ hasRegistered }: { hasRegistered: boolean }) {
@@ -63,76 +70,73 @@ function LoginForm({ hasRegistered }: { hasRegistered: boolean }) {
   }
 
   return (
-    <div className="w-full max-w-sm">
-      <div className="mb-8 text-center">
-        <h2 className="text-xl">ログイン</h2>
-      </div>
+    <div className="px-6">
+      <Card>
+        <div className="w-full max-w-sm">
+          <div className="mb-8 text-center">
+            <h2>ログイン</h2>
+            <hr className="title-border" />
+          </div>
 
+          {hasRegistered && (
+            <p
+              className="my-8 font-semibold rounded-lg text-center text-sm text-primary"
+              role="status"
+            >
+              アカウントが作成されました。ログインしてください。
+            </p>
+          )}
 
-      {hasRegistered && (
-        <p
-          className="mb-5 rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-[#42585E]"
-          role="status"
-        >
-          アカウントを作成しました。ログインしてください。
-        </p>
-      )}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <Label htmlFor="email">メールアドレス</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                required
+                autoFocus
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </div>
 
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700" htmlFor="email">
-            メールアドレス
-          </label>
-          <input
-            className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#42585E] focus:ring-2 focus:ring-[#8ebcc8]"
-            id="email"
-            name="email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            required
-            autoFocus
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
+            <div>
+              <Label htmlFor="password">パスワード</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="パスワードを入力"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </div>
+
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+
+            <Button
+              className="mt-8 ml-auto block"
+              type="submit"
+              isLoading={isSubmitting}
+              loadingLabel="ログイン中"
+            >
+              ログイン
+            </Button>
+          </form>
         </div>
-
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700" htmlFor="password">
-            パスワード
-          </label>
-          <input
-            className="w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#42585E] focus:ring-2 focus:ring-[#8ebcc8]"
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="パスワードを入力"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </div>
-
-        {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700" role="alert">
-            {error}
-          </p>
-        )}
-
-        <button
-          className="w-full rounded-lg bg-[#42585E] px-4 py-2.5 font-medium text-white transition hover:bg-[#42585E] focus:outline-none focus:ring-2 focus:ring-[#42585E] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "ログイン中..." : "ログイン"}
-        </button>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-gray-600">
+      </Card>
+      <p className="my-6 text-center text-sm text-gray-600">
         アカウントをお持ちでないですか？{" "}
-        <Link className="text-[#42585E] font-semibold" href="/signup">
+        <Link
+          className="text-primary font-semibold hover:underline"
+          href="/signup"
+        >
           サインイン
         </Link>
       </p>

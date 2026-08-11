@@ -1,13 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
 
 import Header from "@/components/header";
-import { clearSession, hasValidSession } from "@/lib/auth-session";
+import { useSession } from "@/hooks/use-session";
+import { clearSession } from "@/lib/auth-session";
 import SideNav from "./_components/sidenav";
-
-const subscribe = () => () => {};
 
 export default function MainLayout({
   children,
@@ -15,11 +14,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
-  const isAuthenticated: boolean | null = useSyncExternalStore<boolean | null>(
-    subscribe,
-    hasValidSession,
-    () => null,
-  );
+  const isAuthenticated = useSession();
 
   useEffect(() => {
     if (isAuthenticated === false) {

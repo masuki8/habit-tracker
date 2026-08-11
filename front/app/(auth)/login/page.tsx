@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
 import { saveSession } from "@/lib/auth-session";
+import { clearLoginEmail, getLoginEmail } from "@/lib/login-email";
 
 type LoginResponse = {
   accessToken: string;
@@ -19,23 +20,8 @@ type LoginResponse = {
 };
 
 export default function Login() {
-  return (
-    <Suspense fallback={<LoginForm hasRegistered={false} />}>
-      <LoginWithSearchParams />
-    </Suspense>
-  );
-}
-
-function LoginWithSearchParams() {
-  const searchParams = useSearchParams();
-  return (
-    <LoginForm hasRegistered={searchParams.get("registered") === "true"} />
-  );
-}
-
-function LoginForm({ hasRegistered }: { hasRegistered: boolean }) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(getLoginEmail());
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,6 +48,7 @@ function LoginForm({ hasRegistered }: { hasRegistered: boolean }) {
       );
     } finally {
       setIsSubmitting(false);
+      clearLoginEmail();
     }
   }
 
@@ -73,15 +60,6 @@ function LoginForm({ hasRegistered }: { hasRegistered: boolean }) {
             <h2>ログイン</h2>
             <hr className="title-border" />
           </div>
-
-          {hasRegistered && (
-            <p
-              className="my-8 font-semibold rounded-lg text-center text-sm text-primary"
-              role="status"
-            >
-              アカウントが作成されました。ログインしてください。
-            </p>
-          )}
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>

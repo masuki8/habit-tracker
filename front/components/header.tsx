@@ -1,17 +1,21 @@
-import Link from "next/link";
+import { LogoutButton } from "./logout-button";
 
-export default function Header() {
+type HeaderProps = {
+  showLogout?: boolean;
+};
+
+export default function Header({ showLogout = false }: HeaderProps) {
   return (
     <header className="w-full flex justify-between px-6 py-4 border-b border-b-gray-200">
-      <div>Habit Tracker</div>
+      <div className="align-middle">Habit Tracker</div>
       <div>
         <nav>
           <ul>
-            <li>
-              <Link href="/logout">
-                logout
-              </Link>
-            </li>
+            {showLogout && (
+              <li>
+                <LogoutButton />
+              </li>
+            )}
           </ul>
         </nav>
       </div>

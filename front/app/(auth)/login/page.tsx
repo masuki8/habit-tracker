@@ -10,6 +10,7 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
+import { saveSession } from "@/lib/auth-session";
 
 type LoginResponse = {
   accessToken: string;
@@ -50,13 +51,8 @@ function LoginForm({ hasRegistered }: { hasRegistered: boolean }) {
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      localStorage.setItem("accessToken", response.accessToken);
-      localStorage.setItem(
-        "accessTokenExpiresAt",
-        String(Date.now() + response.expiresIn * 1000),
-      );
-      router.push("/");
-      router.refresh();
+      saveSession(response.accessToken, response.expiresIn);
+      router.replace("/");
     } catch (requestError) {
       const message = requestError instanceof Error ? requestError.message : "";
       setError(

@@ -3,16 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
 
+import Header from "@/components/header";
+import { clearSession, hasValidSession } from "@/lib/auth-session";
 import SideNav from "./_components/sidenav";
 
 const subscribe = () => () => {};
-
-function hasValidSession() {
-  const token = localStorage.getItem("accessToken");
-  const expiresAt = Number(localStorage.getItem("accessTokenExpiresAt"));
-
-  return Boolean(token) && Number.isFinite(expiresAt) && expiresAt > Date.now();
-}
 
 export default function MainLayout({
   children,
@@ -28,8 +23,7 @@ export default function MainLayout({
 
   useEffect(() => {
     if (isAuthenticated === false) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("accessTokenExpiresAt");
+      clearSession();
       router.replace("/login");
     }
   }, [isAuthenticated, router]);
@@ -43,12 +37,15 @@ export default function MainLayout({
   }
 
   return (
-    <>
-      <SideNav />
-      <main className="flex flex-1 flex-col gap-6 overflow-y-auto px-8 py-3">
-        <h1 className="mt-7 w-full">Hello</h1>
-        <div>{children}</div>
-      </main>
-    </>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <Header showLogout />
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <SideNav />
+        <main className="flex flex-1 flex-col gap-6 overflow-y-auto px-8 py-3">
+          <h1 className="mt-7 w-full">Hello</h1>
+          <div>{children}</div>
+        </main>
+      </div>
+    </div>
   );
 }

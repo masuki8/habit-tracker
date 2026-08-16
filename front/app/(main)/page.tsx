@@ -89,7 +89,7 @@ function HabitCard({ habit }: { habit: Habit }) {
     <Card className="flex gap-4">
       <div className="shrink-0">icon</div>
       <div className="grow">
-        <Link href={`/habit/${habit.id}/create`}>
+        <Link href={`/habit/${habit.id}`}>
           <h2>{habit.title}</h2>
           {habit.description && (
             <p className="mt-2 text-sm text-gray-600">{habit.description}</p>
@@ -100,7 +100,7 @@ function HabitCard({ habit }: { habit: Habit }) {
       <div className="text-4xl">{habit.recordsCount}</div>
       <TwoWeekRecordCalendar records={habit.twoWeekRecords} />
       <div>
-        <Link href={`/habit/${habit.id}/create`}>記録する</Link>
+        <Link href={`/habit/${habit.id}/record`}>記録する</Link>
       </div>
     </Card>
   );

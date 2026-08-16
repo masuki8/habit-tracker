@@ -7,5 +7,6 @@ public record RecordResponse(
         Long habitId,
         String content,
         String imageUrl,
-        LocalDate recordDate) {
+        LocalDate recordDate,
+        Integer level) {
 }

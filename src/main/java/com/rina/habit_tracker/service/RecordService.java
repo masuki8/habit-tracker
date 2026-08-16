@@ -42,6 +42,8 @@ public class RecordService {
         record.setHabit(habit);
         record.setContent(request.content());
         record.setImageUrl(request.imageUrl());
+        record.setRecordDate(request.recordDate() != null ? request.recordDate() : LocalDate.now());
+        record.setLevel(request.level() != null ? request.level() : 3);
         return mapToRecordResponse(recordRepository.save(record));
     }
 
@@ -77,6 +79,10 @@ public class RecordService {
         if (request.imageUrl() != null) {
             record.setImageUrl(request.imageUrl());
         }
+
+        if (request.level() > 0) {
+            record.setLevel(request.level());
+        }
         Habit habit = habitRepository.findById(request.habitId())
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
         record.setHabit(habit);
@@ -93,33 +99,31 @@ public class RecordService {
     }
 
     public MonthlyRecordsResponse getMonthlyRecords(Long habitId, YearMonth month) {
-        Map<LocalDate, Long> recordsByDate = recordRepository
-                .findByHabitIdAndRecordDateBetweenOrderByRecordDateAsc(habitId, month.atDay(1), month.atEndOfMonth())
-                .stream()
-                .collect(Collectors.groupingBy(
-                        Record::getRecordDate,
-                        LinkedHashMap::new,
-                        Collectors.counting()));
-
-        List<DailyRecordsResponse> records = recordsByDate.entrySet().stream()
-                .map(entry -> new DailyRecordsResponse(entry.getKey(), Math.toIntExact(entry.getValue())))
-                .toList();
+        List<Record> periodRecords = recordRepository
+                .findByHabitIdAndRecordDateBetweenOrderByRecordDateAsc(
+                        habitId, month.atDay(1), month.atEndOfMonth());
+        List<DailyRecordsResponse> records = getHighestLevelByDate(periodRecords);
         return new MonthlyRecordsResponse(month, records);
     }
 
     public List<DailyRecordsResponse> getRecordsByDateRange(Long habitId, LocalDate fromDate, LocalDate toDate) {
-        Map<LocalDate, Long> recordsByDate = recordRepository
-                .findByHabitIdAndRecordDateBetweenOrderByRecordDateAsc(habitId, fromDate, toDate)
-                .stream()
-                .collect(Collectors.groupingBy(
-                        Record::getRecordDate,
-                        LinkedHashMap::new,
-                        Collectors.counting()));
+        List<Record> periodRecords = recordRepository
+                .findByHabitIdAndRecordDateBetweenOrderByRecordDateAsc(habitId, fromDate, toDate);
+        return getHighestLevelByDate(periodRecords);
+    }
 
-        List<DailyRecordsResponse> records = recordsByDate.entrySet().stream()
-                .map(entry -> new DailyRecordsResponse(entry.getKey(), Math.toIntExact(entry.getValue())))
+    // 1日に複数レコードがある場合は一番高いlevelを返す
+    private List<DailyRecordsResponse> getHighestLevelByDate(List<Record> records) {
+        Map<LocalDate, Integer> highestLevelByDate = records.stream()
+                .collect(Collectors.toMap(
+                        Record::getRecordDate,
+                        record -> record.getLevel() != null ? record.getLevel() : 0,
+                        Math::max,
+                        LinkedHashMap::new));
+
+        return highestLevelByDate.entrySet().stream()
+                .map(entry -> new DailyRecordsResponse(entry.getKey(), entry.getValue()))
                 .toList();
-        return records;
     }
 
     private RecordResponse mapToRecordResponse(Record record) {
@@ -128,6 +132,7 @@ public class RecordService {
             record.getHabit().getId(),
             record.getContent(),
             record.getImageUrl(),
-            record.getCreatedAt().toLocalDate());
+            record.getRecordDate(),
+            record.getLevel());
     }
 }

@@ -4,6 +4,6 @@ import java.time.LocalDate;
 
 public record DailyRecordsResponse(
     LocalDate recordDate,
-    int count
+    int level
 ) {
 }

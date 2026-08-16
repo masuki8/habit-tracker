@@ -47,8 +47,10 @@ public class HabitController {
     }
 
     @GetMapping("/{id}")
-    public HabitResponse getHabitById(@PathVariable Long id) {
-        return habitService.getHabitById(id);
+    public HabitResponse getHabitById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        return habitService.getHabitById(id, authenticatedUser.id());
     }
 
     @PostMapping
@@ -76,7 +78,9 @@ public class HabitController {
     }
 
     @GetMapping("/{id}/records")
-    public List<RecordResponse> getHabitRecords(@PathVariable Long id) {
-        return recordService.getHabitRecords(id);
+    public List<RecordResponse> getHabitRecords(
+            @PathVariable Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        return recordService.getHabitRecords(id, authenticatedUser.id());
     }
 }

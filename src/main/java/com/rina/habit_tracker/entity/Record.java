@@ -38,9 +38,11 @@ public class Record {
     @Column(nullable = true)
     private String imageUrl;
 
-    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDate recordDate;
+
+    @Column(nullable = true)
+    private Integer level;
     
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

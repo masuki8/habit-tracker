@@ -56,10 +56,10 @@ public class HabitService {
                 .collect(Collectors.toList());
     }
 
-    public HabitResponse getHabitById(Long id) {
-        return habitRepository.findById(id)
+    public HabitResponse getHabitById(Long id, Long userId) {
+        return habitRepository.findByIdAndUserId(id, userId)
                 .map(this::mapToHabitResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Habit not found"));
     }
 
     public HabitResponse updateHabit(Long id, Long userId, UpdateHabitRequest request) {

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.rina.habit_tracker.dto.request.CreateRecordRequest;
 import com.rina.habit_tracker.dto.request.UpdateRecordRequest;
@@ -53,7 +55,11 @@ public class RecordService {
                 .collect(Collectors.toList());
     }
 
-    public List<RecordResponse> getHabitRecords(Long habitId) {
+    public List<RecordResponse> getHabitRecords(Long habitId, Long userId) {
+        if (habitRepository.findByIdAndUserId(habitId, userId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Habit not found");
+        }
+
         return recordRepository.findByHabitId(habitId)
                 .stream()
                 .map(this::mapToRecordResponse)

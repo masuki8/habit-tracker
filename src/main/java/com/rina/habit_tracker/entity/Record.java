@@ -32,7 +32,7 @@ public class Record {
     @JoinColumn(name = "habit_id")
     private Habit habit;
 
-    @Column(nullable = true)
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = true)

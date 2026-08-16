@@ -107,6 +107,21 @@ public class RecordService {
         return new MonthlyRecordsResponse(month, records);
     }
 
+    public List<DailyRecordsResponse> getRecordsByDateRange(Long habitId, LocalDate fromDate, LocalDate toDate) {
+        Map<LocalDate, Long> recordsByDate = recordRepository
+                .findByHabitIdAndRecordDateBetweenOrderByRecordDateAsc(habitId, fromDate, toDate)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Record::getRecordDate,
+                        LinkedHashMap::new,
+                        Collectors.counting()));
+
+        List<DailyRecordsResponse> records = recordsByDate.entrySet().stream()
+                .map(entry -> new DailyRecordsResponse(entry.getKey(), Math.toIntExact(entry.getValue())))
+                .toList();
+        return records;
+    }
+
     private RecordResponse mapToRecordResponse(Record record) {
         return new RecordResponse(
             record.getId(),

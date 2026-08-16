@@ -1,5 +1,8 @@
 package com.rina.habit_tracker.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.rina.habit_tracker.dto.request.CreateHabitRequest;
 import com.rina.habit_tracker.dto.request.UpdateHabitRequest;
+import com.rina.habit_tracker.dto.response.DailyRecordsResponse;
 import com.rina.habit_tracker.dto.response.HabitResponse;
 import com.rina.habit_tracker.entity.Habit;
 import com.rina.habit_tracker.entity.User;
@@ -20,10 +24,12 @@ public class HabitService {
 
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
+    private final RecordService recordService;
 
-    public HabitService(HabitRepository habitRepository, UserRepository userRepository) {
+    public HabitService(HabitRepository habitRepository, UserRepository userRepository, RecordService recordService) {
         this.habitRepository = habitRepository;
         this.userRepository = userRepository;
+        this.recordService = recordService;
     }
 
     public HabitResponse createHabit(Long userId, CreateHabitRequest request) {
@@ -86,12 +92,20 @@ public class HabitService {
 
     private HabitResponse mapToHabitResponse(Habit habit) {
         int recordsCount = habit.getRecords().size();
+        LocalDate currentWeekStart = LocalDate.now()
+                .with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        LocalDate twoWeekStart = currentWeekStart.minusWeeks(1);
+        LocalDate twoWeekEnd = currentWeekStart.plusDays(6);
+        List<DailyRecordsResponse> twoWeekRecords = recordService.getRecordsByDateRange(
+                habit.getId(), twoWeekStart, twoWeekEnd);
+
         return new HabitResponse(
             habit.getId(),
             habit.getTitle(),
             habit.getDescription(),
             habit.getUser().getId(),
-            recordsCount
+            recordsCount,
+            twoWeekRecords
         );
     }
 }

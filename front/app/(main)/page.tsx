@@ -6,6 +6,10 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
 import { Card } from "./_components/card";
+import {
+  TwoWeekRecordCalendar,
+  type DailyRecord,
+} from "./_components/two-week-record-calendar";
 import Link from "next/link";
 
 type Habit = {
@@ -13,6 +17,7 @@ type Habit = {
   title: string;
   description: string;
   recordsCount: number;
+  twoWeekRecords: DailyRecord[];
 };
 
 export default function Home() {
@@ -80,7 +85,6 @@ export default function Home() {
 }
 
 function HabitCard({ habit }: { habit: Habit }) {
-
   return (
     <Card className="flex gap-4">
       <div className="shrink-0">icon</div>
@@ -94,7 +98,7 @@ function HabitCard({ habit }: { habit: Habit }) {
       </div>
 
       <div className="text-4xl">{habit.recordsCount}</div>
-      <div>heatMap</div>
+      <TwoWeekRecordCalendar records={habit.twoWeekRecords} />
       <div>
         <Link href={`/habit/${habit.id}/create`}>記録する</Link>
       </div>

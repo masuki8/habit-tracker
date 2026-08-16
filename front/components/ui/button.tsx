@@ -26,7 +26,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`relative text-sm transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${variantStyles[variant]} ${className}`}
+      className={`relative text-sm transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${variantStyles[variant]} ${className}`}
       aria-busy={isLoading || undefined}
       disabled={disabled || isLoading}
       {...props}

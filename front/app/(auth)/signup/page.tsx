@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { FormCard } from "@/components/ui/form-card";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,7 +89,7 @@ export default function SignUp() {
 
   return (
     <div className="px-6">
-      <Card>
+      <FormCard className="w-lg max-w-lg">
         <div className="mb-8 text-center">
           <h2>サインイン</h2>
           <hr className="title-border" />
@@ -163,7 +163,7 @@ export default function SignUp() {
             アカウントを作成
           </Button>
         </form>
-      </Card>
+      </FormCard>
       <p className="my-6 text-center text-sm">
         すでにアカウントをお持ちですか？{" "}
         <Link

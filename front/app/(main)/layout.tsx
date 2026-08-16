@@ -36,7 +36,7 @@ export default function MainLayout({
       <Header showLogout />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <SideNav />
-        <main className="flex flex-1 flex-col gap-6 overflow-y-auto px-8 py-3">
+        <main className="flex flex-1 flex-col gap-6 overflow-y-auto px-20 py-3">
           <h1 className="mt-7 w-full">Hello</h1>
           <div>{children}</div>
         </main>

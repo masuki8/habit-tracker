@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { FormCard } from "@/components/ui/form-card";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,7 +54,7 @@ export default function Login() {
 
   return (
     <div className="px-6">
-      <Card>
+      <FormCard className="w-lg max-w-lg">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
             <h2>ログイン</h2>
@@ -104,7 +104,7 @@ export default function Login() {
             </Button>
           </form>
         </div>
-      </Card>
+      </FormCard>
       <p className="my-6 text-center text-sm text-gray-600">
         アカウントをお持ちでないですか？{" "}
         <Link

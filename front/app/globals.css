@@ -31,7 +31,7 @@
 }
 
 @utility title-border {
-  @apply mt-4 border-b-[0.5px] w-full mx-auto text-secondary;
+  @apply mt-4 border-b-1 w-full mx-auto text-secondary;
 }
 
 @layer base {
@@ -48,6 +48,9 @@
 
   h3 {
     @apply text-lg font-semibold leading-snug;
+  }
+  button:disabled {
+    @apply cursor-not-allowed opacity-40;
   }
 }
 

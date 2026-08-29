@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rina.habit_tracker.dto.request.CreateUserRequest;
 import com.rina.habit_tracker.dto.request.UpdateUserRequest;
 import com.rina.habit_tracker.dto.response.HabitResponse;
+import com.rina.habit_tracker.dto.response.RecordResponse;
 import com.rina.habit_tracker.dto.response.UserResponse;
 import com.rina.habit_tracker.security.AuthenticatedUser;
 import com.rina.habit_tracker.service.HabitService;
+import com.rina.habit_tracker.service.RecordService;
 import com.rina.habit_tracker.service.UserService;
 
 import jakarta.validation.Valid;
@@ -28,22 +30,19 @@ import jakarta.validation.Valid;
 @RequestMapping("/users")
 public class UserController {
 
-    private final HabitService habitService;
     private final UserService userService;
+    private final HabitService habitService;
+    private final RecordService recordService;
 
-    public UserController(UserService userService, HabitService habitService) {
+    public UserController(UserService userService, HabitService habitService, RecordService recordService) {
         this.userService = userService;
         this.habitService = habitService;
+        this.recordService = recordService;
     }
 
-    @GetMapping
-    public List<UserResponse> getAllUsers() {
-        return userService.getAllUsers();
-    }
-
-    @GetMapping("/{id}")
-    public UserResponse getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    @GetMapping("/{userId}")
+    public UserResponse getUserById(@PathVariable Long userId) {
+        return userService.getUserById(userId);
     }
 
     @PostMapping
@@ -52,24 +51,30 @@ public class UserController {
         return userService.createUser(request);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{userId}")
     public UserResponse updateUser(
-            @PathVariable Long id,
+            @PathVariable Long userId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
             @Valid @RequestBody UpdateUserRequest request) {
-        return userService.updateUser(id, authenticatedUser.id(), request);
+        return userService.updateUser(userId, authenticatedUser.id(), request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(
-            @PathVariable Long id,
+            @PathVariable Long userId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        userService.deleteUser(id, authenticatedUser.id());
+        userService.deleteUser(userId, authenticatedUser.id());
     }
 
-    @GetMapping("/{id}/habits")
-    public List<HabitResponse> getUserHabits(@PathVariable Long id) {
-        return habitService.getUserHabits(id);
+    // PUBLIC
+    @GetMapping("/{userId}/habits")
+    public List<HabitResponse> getUserHabits(@PathVariable Long userId) {
+        return habitService.getUserHabits(userId);
+    }
+    
+    @GetMapping("/{userId}/habits/{habitId}/records")
+    public List<RecordResponse> getUserHabitRecords(@PathVariable Long userId, @PathVariable Long habitId) {
+        return recordService.getHabitRecords(habitId, userId);
     }
 }

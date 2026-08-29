@@ -1,4 +1,4 @@
-package com.rina.habit_tracker.controller;
+package com.rina.habit_tracker.controller.Me;
 
 import java.util.List;
 
@@ -25,20 +25,15 @@ import com.rina.habit_tracker.service.RecordService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/habits")
-public class HabitController {
+@RequestMapping("/me/habits")
+public class MeHabitController {
 
     private final RecordService recordService;
     private final HabitService habitService;
 
-    public HabitController(HabitService habitService, RecordService recordService) {
+    public MeHabitController(HabitService habitService, RecordService recordService) {
         this.habitService = habitService;
         this.recordService = recordService;
-    }
-
-    @GetMapping("/all")
-    public List<HabitResponse> getAllHabits() {
-        return habitService.getAllHabits();
     }
 
     @GetMapping
@@ -46,11 +41,18 @@ public class HabitController {
         return habitService.getUserHabits(authenticatedUser.id());
     }
 
-    @GetMapping("/{id}")
-    public HabitResponse getHabitById(
-            @PathVariable Long id,
+    @GetMapping("/{habitId}")
+    public HabitResponse getMyHabitById(
+            @PathVariable Long habitId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        return habitService.getHabitById(id, authenticatedUser.id());
+        return habitService.getHabitById(habitId, authenticatedUser.id());
+    }
+
+    @GetMapping("/{habitId}/records")
+    public List<RecordResponse> getHabitRecords(
+            @PathVariable Long habitId,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        return recordService.getHabitRecords(habitId, authenticatedUser.id());
     }
 
     @PostMapping
@@ -61,26 +63,19 @@ public class HabitController {
         return habitService.createHabit(authenticatedUser.id(), request);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{habitId}")
     public HabitResponse updateHabit(
-            @PathVariable Long id,
+            @PathVariable Long habitId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
             @Valid @RequestBody UpdateHabitRequest request) {
-        return habitService.updateHabit(id, authenticatedUser.id(), request);
+        return habitService.updateHabit(habitId, authenticatedUser.id(), request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{habitId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteHabit(
-            @PathVariable Long id,
+            @PathVariable Long habitId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        habitService.deleteHabit(id, authenticatedUser.id());
-    }
-
-    @GetMapping("/{id}/records")
-    public List<RecordResponse> getHabitRecords(
-            @PathVariable Long id,
-            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        return recordService.getHabitRecords(id, authenticatedUser.id());
+        habitService.deleteHabit(habitId, authenticatedUser.id());
     }
 }

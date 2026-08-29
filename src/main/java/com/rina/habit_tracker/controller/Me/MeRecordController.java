@@ -1,6 +1,4 @@
-package com.rina.habit_tracker.controller;
-
-import java.util.List;
+package com.rina.habit_tracker.controller.Me;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,23 +21,18 @@ import com.rina.habit_tracker.service.RecordService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/records")
-public class RecordController {
+@RequestMapping("/me/records")
+public class MeRecordController {
 
     private final RecordService recordService;
 
-    public RecordController(RecordService recordService) {
+    public MeRecordController(RecordService recordService) {
         this.recordService = recordService;
     }
 
-    @GetMapping
-    public List<RecordResponse> getAllRecords(@PathVariable Long habitId) {
-        return recordService.getAllRecords();
-    }
-
-    @GetMapping("/{id}")
-    public RecordResponse getRecordById(@PathVariable Long id) {
-        return recordService.getRecordById(id);
+    @GetMapping("/{recordId}")
+    public RecordResponse getMyRecordById(@PathVariable Long recordId) {
+        return recordService.getRecordById(recordId);
     }
 
     @PostMapping
@@ -50,19 +43,19 @@ public class RecordController {
         return recordService.createRecord(authenticatedUser.id(), request);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{recordId}")
     public RecordResponse updateRecord(
-            @PathVariable Long id,
+            @PathVariable Long recordId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
             @Valid @RequestBody UpdateRecordRequest request) {
-        return recordService.updateRecord(id, authenticatedUser.id(),request);
+        return recordService.updateRecord(recordId, authenticatedUser.id(),request);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{recordId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRecord(
-            @PathVariable Long id,
+            @PathVariable Long recordId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        recordService.deleteRecord(id, authenticatedUser.id());
+        recordService.deleteRecord(recordId, authenticatedUser.id());
     }
 }

@@ -32,23 +32,6 @@ public class RecordService {
         this.habitRepository = habitRepository;
     }
 
-    public RecordResponse createRecord(Long userId, CreateRecordRequest request) {
-        Habit habit = habitRepository.findById(request.habitId())
-                .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
-
-        if (!habit.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("You cannot create a record for this habit");
-        }
-
-        Record record = new Record();
-        record.setHabit(habit);
-        record.setContent(request.content());
-        record.setImageUrl(request.imageUrl());
-        record.setRecordDate(request.recordDate() != null ? request.recordDate() : LocalDate.now());
-        record.setLevel(request.level() != null ? request.level() : 3);
-        return mapToRecordResponse(recordRepository.save(record));
-    }
-
     public List<RecordResponse> getAllRecords() {
         return recordRepository.findAll().stream()
                 .map(this::mapToRecordResponse)
@@ -70,6 +53,23 @@ public class RecordService {
         return recordRepository.findById(id)
                 .map(this::mapToRecordResponse)
                 .orElseThrow(() -> new IllegalArgumentException("Record not found"));
+    }
+
+    public RecordResponse createRecord(Long userId, CreateRecordRequest request) {
+        Habit habit = habitRepository.findById(request.habitId())
+                .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+
+        if (!habit.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("You cannot create a record for this habit");
+        }
+
+        Record record = new Record();
+        record.setHabit(habit);
+        record.setContent(request.content());
+        record.setImageUrl(request.imageUrl());
+        record.setRecordDate(request.recordDate() != null ? request.recordDate() : LocalDate.now());
+        record.setLevel(request.level() != null ? request.level() : 3);
+        return mapToRecordResponse(recordRepository.save(record));
     }
 
     public RecordResponse updateRecord(Long id, Long userId, UpdateRecordRequest request) {

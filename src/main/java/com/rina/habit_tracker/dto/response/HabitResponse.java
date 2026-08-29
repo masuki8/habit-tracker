@@ -1,5 +1,6 @@
 package com.rina.habit_tracker.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record HabitResponse(
@@ -8,6 +9,7 @@ public record HabitResponse(
         String description,
         Long userId,
         int recordsCount,
-        List<DailyRecordsResponse> twoWeekRecords
+        List<DailyRecordsResponse> twoWeekRecords,
+        LocalDateTime createdAt
 ) {
 }

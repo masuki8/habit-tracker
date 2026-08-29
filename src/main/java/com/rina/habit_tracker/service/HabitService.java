@@ -32,17 +32,6 @@ public class HabitService {
         this.recordService = recordService;
     }
 
-    public HabitResponse createHabit(Long userId, CreateHabitRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        Habit habit = new Habit();
-        habit.setTitle(request.title());
-        habit.setDescription(request.description());
-        habit.setUser(user);
-        return mapToHabitResponse(habitRepository.save(habit));
-    }
-
     public List<HabitResponse> getAllHabits() {
         return habitRepository.findAll().stream()
                 .map(this::mapToHabitResponse)
@@ -60,6 +49,17 @@ public class HabitService {
         return habitRepository.findByIdAndUserId(id, userId)
                 .map(this::mapToHabitResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Habit not found"));
+    }
+
+    public HabitResponse createHabit(Long userId, CreateHabitRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Habit habit = new Habit();
+        habit.setTitle(request.title());
+        habit.setDescription(request.description());
+        habit.setUser(user);
+        return mapToHabitResponse(habitRepository.save(habit));
     }
 
     public HabitResponse updateHabit(Long id, Long userId, UpdateHabitRequest request) {
@@ -105,7 +105,8 @@ public class HabitService {
             habit.getDescription(),
             habit.getUser().getId(),
             recordsCount,
-            twoWeekRecords
+            twoWeekRecords,
+            habit.getCreatedAt()
         );
     }
 }

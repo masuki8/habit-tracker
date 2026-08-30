@@ -1,6 +1,6 @@
 "use client";
 
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { Check } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -22,7 +22,7 @@ type RecordItem = {
   level: number | null;
 };
 
-type Habit = { id: number; title: string };
+type Habit = { id: number; title: string; createdAt: string };
 
 export default function EditRecordPage() {
   const { recordId } = useParams<{ recordId: string }>();
@@ -36,8 +36,8 @@ export default function EditRecordPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const minDate = format(addDays(today, -2), DATE_FORMAT);
   const maxDate = format(today, DATE_FORMAT);
+  const minDate = habit?.createdAt.slice(0, 10) ?? maxDate;
 
   useEffect(() => {
     const controller = new AbortController();

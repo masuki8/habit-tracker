@@ -59,7 +59,6 @@ function RecordDatePicker({ value, min, max, onChange }: {
       <Input
         id="record-date"
         aria-label="記録日"
-        className="w-fit appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
         type="date"
         required
         value={value}

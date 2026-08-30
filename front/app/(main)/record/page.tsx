@@ -1,6 +1,6 @@
 "use client";
 
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { Check } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -13,7 +13,7 @@ import { getAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { DATE_FORMAT, DEFAULT_LEVEL, RecordFormFields } from "./_components/record-form-fields";
 
-type Habit = { id: number; title: string };
+type Habit = { id: number; title: string; createdAt: string };
 
 export default function CreateRecordPage() {
   const habitId = useSearchParams().get("habitId");
@@ -26,8 +26,8 @@ export default function CreateRecordPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const minDate = format(addDays(today, -2), DATE_FORMAT);
   const maxDate = format(today, DATE_FORMAT);
+  const minDate = habit?.createdAt.slice(0, 10) ?? maxDate;
 
   useEffect(() => {
     const controller = new AbortController();

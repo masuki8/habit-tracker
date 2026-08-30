@@ -63,11 +63,14 @@ public class RecordService {
             throw new IllegalArgumentException("You cannot create a record for this habit");
         }
 
+        LocalDate recordDate = request.recordDate() != null ? request.recordDate() : LocalDate.now();
+        validateRecordDate(habit, recordDate);
+
         Record record = new Record();
         record.setHabit(habit);
         record.setContent(request.content());
         record.setImageUrl(request.imageUrl());
-        record.setRecordDate(request.recordDate() != null ? request.recordDate() : LocalDate.now());
+        record.setRecordDate(recordDate);
         record.setLevel(request.level() != null ? request.level() : 3);
         return mapToRecordResponse(recordRepository.save(record));
     }
@@ -89,11 +92,12 @@ public class RecordService {
         if (request.level() > 0) {
             record.setLevel(request.level());
         }
-        if (request.recordDate() != null) {
-            record.setRecordDate(request.recordDate());
-        }
         Habit habit = habitRepository.findById(request.habitId())
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+        if (request.recordDate() != null) {
+            validateRecordDate(habit, request.recordDate());
+            record.setRecordDate(request.recordDate());
+        }
         record.setHabit(habit);
         return mapToRecordResponse(recordRepository.save(record));
     }
@@ -133,6 +137,15 @@ public class RecordService {
         return highestLevelByDate.entrySet().stream()
                 .map(entry -> new DailyRecordsResponse(entry.getKey(), entry.getValue()))
                 .toList();
+    }
+
+    private void validateRecordDate(Habit habit, LocalDate recordDate) {
+        LocalDate habitCreatedDate = habit.getCreatedAt().toLocalDate();
+        if (recordDate.isBefore(habitCreatedDate) || recordDate.isAfter(LocalDate.now())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Record date must be between the habit creation date and today");
+        }
     }
 
     private RecordResponse mapToRecordResponse(Record record) {

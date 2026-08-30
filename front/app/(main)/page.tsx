@@ -33,7 +33,7 @@ export default function Home() {
         const token = getAccessToken();
         if (!token) throw new Error("認証情報を取得できませんでした。");
 
-        const response = await apiFetch<Habit[]>("/habits", {
+        const response = await apiFetch<Habit[]>("/me/habits", {
           token,
           signal: controller.signal,
         });
@@ -100,7 +100,7 @@ function HabitCard({ habit }: { habit: Habit }) {
       <div className="text-4xl">{habit.recordsCount}</div>
       <TwoWeekRecordCalendar records={habit.twoWeekRecords} />
       <div>
-        <Link href={`/habit/${habit.id}/record`}>記録する</Link>
+        <Link href={`/record?habitId=${habit.id}`}>記録する</Link>
       </div>
     </Card>
   );

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.rina.habit_tracker.dto.request.CreateRecordRequest;
@@ -88,6 +88,9 @@ public class RecordService {
 
         if (request.level() > 0) {
             record.setLevel(request.level());
+        }
+        if (request.recordDate() != null) {
+            record.setRecordDate(request.recordDate());
         }
         Habit habit = habitRepository.findById(request.habitId())
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));

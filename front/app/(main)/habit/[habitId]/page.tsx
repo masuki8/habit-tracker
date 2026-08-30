@@ -1,6 +1,6 @@
 "use client";
 
-import { Flame, Plus } from "lucide-react";
+import { Flame, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -42,11 +42,11 @@ export default function HabitDetailPage() {
         if (!token) throw new Error("認証情報を取得できませんでした。");
 
         const [habitResponse, recordsResponse] = await Promise.all([
-          apiFetch<Habit>(`/habits/${habitId}`, {
+          apiFetch<Habit>(`/me/habits/${habitId}`, {
             token,
             signal: controller.signal,
           }),
-          apiFetch<RecordItem[]>(`/habits/${habitId}/records`, {
+          apiFetch<RecordItem[]>(`/me/habits/${habitId}/records`, {
             token,
             signal: controller.signal,
           }),
@@ -93,7 +93,7 @@ export default function HabitDetailPage() {
             </p>
           </div>
           <Link
-            href={`/habit/${habit.id}/record`}
+            href={`/record?habitId=${habit.id}`}
             className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-text transition hover:bg-primary-hover"
           >
             <Plus className="size-5" aria-hidden="true" />
@@ -136,14 +136,23 @@ function RecordCard({ record }: { record: RecordItem }) {
             {record.content || "メモはありません。"}
           </p>
         </div>
-        <div className="flex shrink-0" aria-label={`レベル${level}`}>
-          {Array.from({ length: level }, (_, index) => (
-            <Flame
-              key={index}
-              className="size-5 fill-orange-400 text-orange-400"
-              aria-hidden="true"
-            />
-          ))}
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="flex" aria-label={`レベル${level}`}>
+            {Array.from({ length: level }, (_, index) => (
+              <Flame
+                key={index}
+                className="size-5 fill-orange-400 text-orange-400"
+                aria-hidden="true"
+              />
+            ))}
+          </div>
+          <Link
+            href={`/record/${record.id}/edit`}
+            aria-label={`${record.recordDate}の記録を編集`}
+            className="rounded p-1 text-gray-500 transition hover:text-primary"
+          >
+            <Pencil className="size-5" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </Card>

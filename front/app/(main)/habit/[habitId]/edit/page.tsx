@@ -1,16 +1,18 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { ErrorScreen } from "@/components/ui/error-screen";
-import { FormCard } from "@/components/ui/form-card";
 import { apiFetch } from "@/lib/api";
-import { getAccessToken } from "@/lib/auth-session";
+import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
-import { HabitForm, type HabitFormValue } from "../../_components/habit-form";
+import {
+  HabitForm,
+  type HabitFormValue,
+} from "../../_components/habit-form";
 
 type HabitResponse = HabitFormValue & { id: number };
 
@@ -19,17 +21,14 @@ export default function EditHabitPage() {
   const router = useRouter();
   const [value, setValue] = useState<HabitFormValue | null>(null);
   const [loadError, setLoadError] = useState<PageLoadError | null>(null);
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function fetchHabit() {
       try {
-        const token = getAccessToken();
-        if (!token) throw new Error("認証情報を取得できませんでした。");
+        const token = requireAccessToken();
         const habit = await apiFetch<HabitResponse>(`/me/habits/${habitId}`, {
           token,
           signal: controller.signal,
@@ -40,7 +39,9 @@ export default function EditHabitPage() {
         });
       } catch (requestError) {
         if (!controller.signal.aborted) {
-          setLoadError(toPageLoadError(requestError, "習慣を取得できませんでした。"));
+          setLoadError(
+            toPageLoadError(requestError, "習慣を取得できませんでした。"),
+          );
         }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
@@ -51,48 +52,33 @@ export default function EditHabitPage() {
     return () => controller.abort();
   }, [habitId]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!value) return;
-    setError("");
-    setIsSubmitting(true);
-
-    try {
-      const token = getAccessToken();
-      if (!token) throw new Error("認証情報を取得できませんでした。");
-      await apiFetch(`/me/habits/${habitId}`, {
-        method: "PUT",
-        token,
-        body: JSON.stringify({ ...value, title: value.title.trim(), description: value.description.trim() }),
-      });
-      saveFlashMessage({ message: "習慣を更新しました。", variant: "success" });
-      router.push(`/habit/${habitId}`);
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "習慣を更新できませんでした。");
-    } finally {
-      setIsSubmitting(false);
-    }
+  async function updateHabit(nextValue: HabitFormValue) {
+    const token = requireAccessToken();
+    await apiFetch(`/me/habits/${habitId}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(nextValue),
+    });
+    saveFlashMessage({ message: "習慣を更新しました。", variant: "success" });
+    router.push(`/habit/${habitId}`);
   }
 
   if (isLoading) return <LoadingScreen message="習慣を読み込んでいます..." />;
   if (loadError?.isNotFound) {
-    return <ErrorScreen title="習慣が見つかりません" message="指定された習慣は存在しないか、編集する権限がありません。" />;
+    return (
+      <ErrorScreen
+        title="習慣が見つかりません"
+        message="指定された習慣は存在しないか、編集する権限がありません。"
+      />
+    );
   }
   if (loadError || !value) {
-    return <ErrorScreen message={loadError?.message ?? "習慣を取得できませんでした。"} />;
+    return (
+      <ErrorScreen
+        message={loadError?.message ?? "習慣を取得できませんでした。"}
+      />
+    );
   }
 
-  return (
-    <FormCard className="mx-auto w-full max-w-3xl">
-      <HabitForm
-        heading="習慣を編集"
-        value={value}
-        error={error}
-        isSubmitting={isSubmitting}
-        submitLabel="更新中"
-        onChange={setValue}
-        onSubmit={handleSubmit}
-      />
-    </FormCard>
-  );
+  return <HabitForm mode="edit" initialValue={value} onSubmit={updateHabit} />;
 }

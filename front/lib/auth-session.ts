@@ -27,3 +27,11 @@ export function getAccessToken() {
   if (!hasValidSession()) return null;
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
+
+export function requireAccessToken() {
+  const token = getAccessToken();
+  if (!token) {
+    throw new Error("認証情報を取得できませんでした。")
+  }
+  return token;
+}

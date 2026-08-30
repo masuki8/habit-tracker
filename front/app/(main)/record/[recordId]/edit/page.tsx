@@ -1,20 +1,15 @@
 "use client";
 
-import { format } from "date-fns";
-import { Check } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { ErrorMessage } from "@/components/ui/error-message";
 import { ErrorScreen } from "@/components/ui/error-screen";
-import { FormCard } from "@/components/ui/form-card";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
-import { getAccessToken } from "@/lib/auth-session";
+import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
-import { DATE_FORMAT, DEFAULT_LEVEL, RecordFormFields } from "../../_components/record-form-fields";
+import { RecordForm, type RecordFormSubmission, type RecordFormValue, DEFAULT_LEVEL, type HabitOption } from "../../_components/record-form";
 
 type RecordItem = {
   id: number;
@@ -25,49 +20,32 @@ type RecordItem = {
   level: number | null;
 };
 
-type Habit = { id: number; title: string; createdAt: string };
-
 export default function EditRecordPage() {
   const { recordId } = useParams<{ recordId: string }>();
   const router = useRouter();
-  const today = new Date();
   const [record, setRecord] = useState<RecordItem | null>(null);
   const [loadError, setLoadError] = useState<PageLoadError | null>(null);
-  const [habits, setHabits] = useState<Habit[]>([]);
-  const [selectedHabitId, setSelectedHabitId] = useState("");
-  const [recordDate, setRecordDate] = useState(format(today, DATE_FORMAT));
-  const [content, setContent] = useState("");
-  const [level, setLevel] = useState(DEFAULT_LEVEL);
-  const [error, setError] = useState("");
+  const [habits, setHabits] = useState<HabitOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const maxDate = format(today, DATE_FORMAT);
-  const habit = habits.find((item) => String(item.id) === selectedHabitId);
-  const minDate = habit?.createdAt.slice(0, 10) ?? maxDate;
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function fetchRecord() {
       try {
-        const token = getAccessToken();
-        if (!token) throw new Error("認証情報を取得できませんでした。");
+        const token = requireAccessToken();
         const [fetchedRecord, fetchedHabits] = await Promise.all([
           apiFetch<RecordItem>(`/me/records/${recordId}`, {
             token,
             signal: controller.signal,
           }),
-          apiFetch<Habit[]>("/me/habits", {
+          apiFetch<HabitOption[]>("/me/habits", {
             token,
             signal: controller.signal,
           }),
         ]);
         setRecord(fetchedRecord);
         setHabits(fetchedHabits);
-        setSelectedHabitId(String(fetchedRecord.habitId));
-        setRecordDate(fetchedRecord.recordDate);
-        setContent(fetchedRecord.content ?? "");
-        setLevel(fetchedRecord.level ?? DEFAULT_LEVEL);
       } catch (requestError) {
         if (!controller.signal.aborted) {
           setLoadError(toPageLoadError(requestError, "記録を取得できませんでした。"));
@@ -81,77 +59,34 @@ export default function EditRecordPage() {
     return () => controller.abort();
   }, [recordId]);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!record || !habit) return;
-    setError("");
-    setIsSubmitting(true);
-
-    try {
-      const token = getAccessToken();
-      if (!token) throw new Error("認証情報を取得できませんでした。");
-      await apiFetch(`/me/records/${record.id}`, {
-        method: "PUT",
-        token,
-        body: JSON.stringify({ habitId: habit.id, recordDate, content: content.trim(), level, imageUrl: record.imageUrl }),
-      });
-      saveFlashMessage({ message: "記録を更新しました。", variant: "success" });
-      router.push(`/habit/${habit.id}`);
-    } catch (requestError) {
-      setError(getErrorMessage(requestError, "記録を更新できませんでした。"));
-    } finally {
-      setIsSubmitting(false);
-    }
+  async function updateRecord(value: RecordFormSubmission) {
+    if (!record) return;
+    const token = requireAccessToken();
+    await apiFetch(`/me/records/${record.id}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(value),
+    });
+    saveFlashMessage({ message: "記録を更新しました。", variant: "success" });
+    router.push(`/habit/${value.habitId}`);
   }
 
   if (isLoading) return <LoadingScreen message="記録を読み込んでいます..." />;
   if (loadError?.isNotFound) {
     return <ErrorScreen title="記録が見つかりません" message="指定された記録は存在しないか、編集する権限がありません。" />;
   }
-  if (loadError || !record || !habit) {
+  const habitExists = record && habits.some((habit) => habit.id === record.habitId);
+  if (loadError || !record || !habitExists) {
     return <ErrorScreen message={loadError?.message ?? "記録を取得できませんでした。"} />;
   }
 
-  return (
-    <FormCard className="mx-auto w-full max-w-7xl">
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-        <div className="flex justify-between gap-3">
-          <h2>{habit ? `${habit.title}の記録を編集` : "記録を編集"}</h2>
-          <Button type="submit" disabled={!record} isLoading={isSubmitting} loadingLabel="更新中" aria-label="記録を更新">
-            <Check aria-hidden="true" />
-          </Button>
-        </div>
-        <RecordFormFields
-          recordDate={recordDate}
-          minDate={minDate}
-          maxDate={maxDate}
-          content={content}
-          level={level}
-          habitId={selectedHabitId}
-          habits={habits}
-          onRecordDateChange={setRecordDate}
-          onHabitIdChange={(nextHabitId) => {
-            const nextHabit = habits.find(
-              (item) => String(item.id) === nextHabitId,
-            );
-            setSelectedHabitId(nextHabitId);
-            setError("");
-            if (
-              nextHabit &&
-              recordDate < nextHabit.createdAt.slice(0, 10)
-            ) {
-              setRecordDate(maxDate);
-            }
-          }}
-          onContentChange={setContent}
-          onLevelChange={setLevel}
-        />
-      </form>
-    </FormCard>
-  );
-}
+  const initialValue: RecordFormValue = {
+    habitId: String(record.habitId),
+    recordDate: record.recordDate,
+    content: record.content ?? "",
+    level: record.level ?? DEFAULT_LEVEL,
+    imageUrl: record.imageUrl,
+  };
 
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
+  return <RecordForm mode="edit" habits={habits} initialValue={initialValue} onSubmit={updateRecord} />;
 }

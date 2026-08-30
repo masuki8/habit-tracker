@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
-import { getAccessToken } from "@/lib/auth-session";
+import { requireAccessToken } from "@/lib/auth-session";
 import { Card } from "./_components/card";
 import {
   TwoWeekRecordCalendar,
@@ -31,8 +31,7 @@ export default function Home() {
 
     async function fetchHabits() {
       try {
-        const token = getAccessToken();
-        if (!token) throw new Error("認証情報を取得できませんでした。");
+        const token = requireAccessToken();
 
         const response = await apiFetch<Habit[]>("/me/habits", {
           token,
@@ -106,7 +105,7 @@ function HabitCard({ habit }: { habit: Habit }) {
       <div className="text-4xl">{habit.recordsCount}</div>
       <TwoWeekRecordCalendar records={habit.twoWeekRecords} />
       <div>
-        <Link href={`/record?habitId=${habit.id}`}>記録する</Link>
+        <Link href={`/record/create?habitId=${habit.id}`}>記録する</Link>
       </div>
     </Card>
   );

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
-import { getAccessToken } from "@/lib/auth-session";
+import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 
 type UserResponse = {
@@ -37,8 +37,7 @@ export default function SettingsPage() {
 
     async function fetchMe() {
       try {
-        const accessToken = getAccessToken();
-        if (!accessToken) throw new Error("認証情報を取得できませんでした。");
+        const accessToken = requireAccessToken();
         const user = await apiFetch<UserResponse>("/me", {
           token: accessToken,
           signal: controller.signal,

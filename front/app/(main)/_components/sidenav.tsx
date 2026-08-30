@@ -12,6 +12,7 @@ export default function SideNav() {
         <ul className="flex flex-col w-full gap-2">
           <MenuItem name={'Home'} link={'/'} />
           <MenuItem name={'Habits'} link={'/'} />
+          <MenuItem name={'Settings'} link={'/settings'} />
         </ul>
       </nav>
     </aside>

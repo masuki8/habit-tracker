@@ -99,6 +99,11 @@ export default function SignUp() {
         }
       }
 
+      if (requestError instanceof ApiError && requestError.status === 409) {
+        setError("このアカウントIDはすでに使用されています。");
+        return;
+      }
+
       setError(
         requestError instanceof Error && requestError.message
           ? requestError.message
@@ -144,9 +149,7 @@ export default function SignUp() {
               required
               aria-describedby="account-id-status"
               value={accountId}
-              onChange={(event) =>
-                setAccountId(event.target.value.toLowerCase())
-              }
+              onChange={(event) => setAccountId(event.target.value.toLowerCase())}
             />
             <AccountIdStatusMessage status={accountIdStatus} />
           </div>

@@ -31,8 +31,10 @@ public class MeRecordController {
     }
 
     @GetMapping("/{recordId}")
-    public RecordResponse getMyRecordById(@PathVariable Long recordId) {
-        return recordService.getRecordById(recordId);
+    public RecordResponse getMyRecordById(
+            @PathVariable Long recordId,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        return recordService.getRecordById(recordId, authenticatedUser.id());
     }
 
     @PostMapping
@@ -48,7 +50,7 @@ public class MeRecordController {
             @PathVariable Long recordId,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
             @Valid @RequestBody UpdateRecordRequest request) {
-        return recordService.updateRecord(recordId, authenticatedUser.id(),request);
+        return recordService.updateRecord(recordId, authenticatedUser.id(), request);
     }
 
     @DeleteMapping("/{recordId}")

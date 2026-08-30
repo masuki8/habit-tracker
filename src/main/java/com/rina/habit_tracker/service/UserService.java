@@ -43,14 +43,14 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public UserResponse getUserById(Long id) {
-        return userRepository.findById(id)
+    public UserResponse getUserById(Long userId) {
+        return userRepository.findById(userId)
                 .map(this::mapToUserResponse)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
-    public UserResponse updateUser(Long id, Long authenticatedUserId, UpdateUserRequest request) {
-        User user = userRepository.findById(id)
+    public UserResponse updateUser(Long userId, Long authenticatedUserId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if (!user.getId().equals(authenticatedUserId)) {
@@ -69,8 +69,8 @@ public class UserService {
         return mapToUserResponse(userRepository.save(user));
     }
 
-    public void deleteUser(Long id, Long authenticatedUserId) {
-        User user = userRepository.findById(id)
+    public void deleteUser(Long userId, Long authenticatedUserId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         
         if (!user.getId().equals(authenticatedUserId)) {

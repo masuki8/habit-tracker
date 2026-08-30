@@ -4,10 +4,9 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 public record UpdateRecordRequest(
-        @NotNull Long habitId,
+        Long habitId,
         String content,
         String imageUrl,
         LocalDate recordDate,

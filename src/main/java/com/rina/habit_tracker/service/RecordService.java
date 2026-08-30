@@ -49,19 +49,15 @@ public class RecordService {
                 .collect(Collectors.toList());
     }
 
-    public RecordResponse getRecordById(Long id) {
-        return recordRepository.findById(id)
+    public RecordResponse getRecordById(Long recordId, Long userId) {
+        return recordRepository.findByIdAndHabitUserId(recordId, userId)
                 .map(this::mapToRecordResponse)
                 .orElseThrow(() -> new IllegalArgumentException("Record not found"));
     }
 
     public RecordResponse createRecord(Long userId, CreateRecordRequest request) {
-        Habit habit = habitRepository.findById(request.habitId())
+        Habit habit = habitRepository.findByIdAndUserId(request.habitId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
-
-        if (!habit.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("You cannot create a record for this habit");
-        }
 
         LocalDate recordDate = request.recordDate() != null ? request.recordDate() : LocalDate.now();
         validateRecordDate(habit, recordDate);
@@ -75,25 +71,26 @@ public class RecordService {
         return mapToRecordResponse(recordRepository.save(record));
     }
 
-    public RecordResponse updateRecord(Long id, Long userId, UpdateRecordRequest request) {
-        Record record = recordRepository.findById(id)
+    public RecordResponse updateRecord(Long recordId, Long userId, UpdateRecordRequest request) {
+        Record record = recordRepository.findByIdAndHabitUserId(recordId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Record not found"));
 
-        if (!record.getHabit().getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("You cannot update this record");
-        }
+        Long habitId = request.habitId() != null
+                ? request.habitId()
+                : record.getHabit().getId();
+
+        Habit habit = habitRepository.findByIdAndUserId(habitId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
+
         if (request.content() != null) {
             record.setContent(request.content());
         }
         if (request.imageUrl() != null) {
             record.setImageUrl(request.imageUrl());
         }
-
         if (request.level() > 0) {
             record.setLevel(request.level());
         }
-        Habit habit = habitRepository.findById(request.habitId())
-                .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
         if (request.recordDate() != null) {
             validateRecordDate(habit, request.recordDate());
             record.setRecordDate(request.recordDate());
@@ -102,12 +99,9 @@ public class RecordService {
         return mapToRecordResponse(recordRepository.save(record));
     }
 
-    public void deleteRecord(Long id, Long userId) {
-        Record record = recordRepository.findById(id)
+    public void deleteRecord(Long recordId, Long userId) {
+        Record record = recordRepository.findByIdAndHabitUserId(recordId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
-        if (!record.getHabit().getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("You cannot delete this record");
-        }
         recordRepository.delete(record);
     }
 

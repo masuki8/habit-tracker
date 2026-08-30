@@ -45,8 +45,8 @@ public class HabitService {
                 .collect(Collectors.toList());
     }
 
-    public HabitResponse getHabitById(Long id, Long userId) {
-        return habitRepository.findByIdAndUserId(id, userId)
+    public HabitResponse getHabitById(Long habitId, Long userId) {
+        return habitRepository.findByIdAndUserId(habitId, userId)
                 .map(this::mapToHabitResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Habit not found"));
     }
@@ -62,13 +62,9 @@ public class HabitService {
         return mapToHabitResponse(habitRepository.save(habit));
     }
 
-    public HabitResponse updateHabit(Long id, Long userId, UpdateHabitRequest request) {
-        Habit habit = habitRepository.findById(id)
+    public HabitResponse updateHabit(Long habitId, Long userId, UpdateHabitRequest request) {
+        Habit habit = habitRepository.findByIdAndUserId(habitId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
-
-        if (!habit.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot update this habit");
-        }
 
         if (request.title() != null) {
             habit.setTitle(request.title());
@@ -79,13 +75,9 @@ public class HabitService {
         return mapToHabitResponse(habitRepository.save(habit));
     }
 
-    public void deleteHabit(Long id, Long userId) {
-        Habit habit = habitRepository.findById(id)
+    public void deleteHabit(Long habitId, Long userId) {
+        Habit habit = habitRepository.findByIdAndUserId(habitId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Habit not found"));
-
-        if (!habit.getUser().getId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot delete this habit");
-        }
 
         habitRepository.delete(habit);
     }

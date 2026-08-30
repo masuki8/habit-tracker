@@ -9,12 +9,11 @@ import { apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
+import type { HabitResponse } from "@/types/api";
 import {
   HabitForm,
   type HabitFormValue,
 } from "../../_components/habit-form";
-
-type HabitResponse = HabitFormValue & { id: number };
 
 export default function EditHabitPage() {
   const { habitId } = useParams<{ habitId: string }>();

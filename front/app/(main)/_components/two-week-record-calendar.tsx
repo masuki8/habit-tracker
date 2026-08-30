@@ -1,18 +1,15 @@
 import { addDays, format, startOfWeek, subWeeks } from "date-fns";
 
-export type DailyRecord = {
-  recordDate: string;
-  level: number;
-};
+import type { DailyRecordResponse } from "@/types/api";
 
 type TwoWeekRecordCalendarProps = {
-  records: DailyRecord[];
+  records: DailyRecordResponse[];
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function createWeek(startDate: Date, recordsByDate: Map<string, number>) {
-  return Array.from({ length: 7 }, (_, index): DailyRecord => {
+  return Array.from({ length: 7 }, (_, index): DailyRecordResponse => {
     const date = addDays(startDate, index);
     const formattedDate = format(date, "yyyy-MM-dd");
 
@@ -57,7 +54,7 @@ export function TwoWeekRecordCalendar({ records }: TwoWeekRecordCalendarProps) {
   );
 }
 
-function DayCell({ recordDate, level }: DailyRecord) {
+function DayCell({ recordDate, level }: DailyRecordResponse) {
   const LEVEL_CLASSES: Record<number, string> = {
     0: "bg-gray-100",
     1: "bg-gray-300",

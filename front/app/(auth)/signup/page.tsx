@@ -15,14 +15,7 @@ import { ACCOUNT_ID_MAX_LENGTH, ACCOUNT_ID_MIN_LENGTH } from "@/lib/account-id";
 import { ApiError, apiFetch } from "@/lib/api";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { saveLoginEmail } from "@/lib/login-email";
-
-type UserResponse = {
-  id: number;
-  accountId: string;
-  name: string;
-  email: string;
-  lastLoginAt: string | null;
-};
+import type { UserResponse } from "@/types/api";
 
 export default function SignUp() {
   const router = useRouter();

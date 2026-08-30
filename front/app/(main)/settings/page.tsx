@@ -12,13 +12,7 @@ import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
-
-type UserResponse = {
-  id: number;
-  accountId: string;
-  name: string;
-  email: string;
-};
+import type { UserResponse } from "@/types/api";
 
 export default function SettingsPage() {
   const [token, setToken] = useState("");

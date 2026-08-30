@@ -10,14 +10,15 @@ import { apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
+import type { HabitResponse } from "@/types/api";
 import { RecordForm, type RecordFormSubmission } from "../_components/record-form";
-import { DATE_FORMAT, DEFAULT_LEVEL, type HabitOption } from "../_components/record-form";
+import { DATE_FORMAT, DEFAULT_LEVEL } from "../_components/record-form";
 
 export default function CreateRecordPage() {
   const requestedHabitId = useSearchParams().get("habitId") ?? "";
   const router = useRouter();
   const [loadError, setLoadError] = useState<PageLoadError | null>(null);
-  const [habits, setHabits] = useState<HabitOption[]>([]);
+  const [habits, setHabits] = useState<HabitResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function CreateRecordPage() {
     async function fetchHabits() {
       try {
         const token = requireAccessToken();
-        const fetchedHabits = await apiFetch<HabitOption[]>("/me/habits", {
+        const fetchedHabits = await apiFetch<HabitResponse[]>("/me/habits", {
           token,
           signal: controller.signal,
         });

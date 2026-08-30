@@ -12,12 +12,7 @@ import { Label } from "@/components/ui/label";
 import { apiFetch } from "@/lib/api";
 import { saveSession } from "@/lib/auth-session";
 import { clearLoginEmail, getLoginEmail } from "@/lib/login-email";
-
-type LoginResponse = {
-  accessToken: string;
-  tokenType: string;
-  expiresIn: number;
-};
+import type { LoginResponse } from "@/types/api";
 
 export default function Login() {
   const router = useRouter();

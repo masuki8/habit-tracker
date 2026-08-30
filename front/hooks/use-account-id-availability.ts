@@ -9,6 +9,7 @@ import {
   ACCOUNT_ID_PATTERN,
   normalizeAccountId,
 } from "@/lib/account-id";
+import type { AccountIdAvailabilityResponse } from "@/types/api";
 
 export type AccountIdStatus =
   | "idle"
@@ -48,7 +49,7 @@ export function useAccountIdAvailability({
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       try {
-        const response = await apiFetch<{ available: boolean }>(
+        const response = await apiFetch<AccountIdAvailabilityResponse>(
           `${endpoint}?accountId=${encodeURIComponent(normalizedAccountId)}`,
           { token, signal: controller.signal },
         );

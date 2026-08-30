@@ -9,6 +9,7 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { FormCard } from "@/components/ui/form-card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import type { HabitResponse } from "@/types/api";
 
 export const DATE_FORMAT = "yyyy-MM-dd";
 export const DEFAULT_LEVEL = 3;
@@ -28,7 +29,7 @@ export type RecordFormSubmission = Omit<RecordFormValue, "habitId"> & {
 
 type RecordFormProps = {
   mode: "create" | "edit";
-  habits: HabitOption[];
+  habits: HabitResponse[];
   initialValue: RecordFormValue;
   onSubmit: (value: RecordFormSubmission) => Promise<void>;
 };
@@ -238,18 +239,12 @@ function LevelPicker({
   );
 }
 
-export type HabitOption = {
-  id: number;
-  title: string;
-  createdAt: string;
-};
-
 function HabitSelector({
   habits,
   value,
   onChange,
 }: {
-  habits: HabitOption[];
+  habits: HabitResponse[];
   value: string;
   onChange: (habitId: string) => void;
 }) {

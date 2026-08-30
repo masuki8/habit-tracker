@@ -7,22 +7,13 @@ import Link from "next/link";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
+import type { HabitResponse } from "@/types/api";
 import { Card } from "./_components/card";
-import {
-  TwoWeekRecordCalendar,
-  type DailyRecord,
-} from "./_components/two-week-record-calendar";
+import { TwoWeekRecordCalendar } from "./_components/two-week-record-calendar";
 import { ErrorScreen } from "@/components/ui/error-screen";
-type Habit = {
-  id: number;
-  title: string;
-  description: string;
-  recordsCount: number;
-  twoWeekRecords: DailyRecord[];
-};
 
 export default function Home() {
-  const [habits, setHabits] = useState<Habit[]>([]);
+  const [habits, setHabits] = useState<HabitResponse[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,7 +24,7 @@ export default function Home() {
       try {
         const token = requireAccessToken();
 
-        const response = await apiFetch<Habit[]>("/me/habits", {
+        const response = await apiFetch<HabitResponse[]>("/me/habits", {
           token,
           signal: controller.signal,
         });
@@ -90,7 +81,7 @@ export default function Home() {
   );
 }
 
-function HabitCard({ habit }: { habit: Habit }) {
+function HabitCard({ habit }: { habit: HabitResponse }) {
   return (
     <Card className="flex gap-4">
       <div className="grow">

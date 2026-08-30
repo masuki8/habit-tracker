@@ -9,23 +9,8 @@ import { ErrorScreen } from "@/components/ui/error-screen";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { ApiError, apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
+import type { HabitResponse, RecordResponse } from "@/types/api";
 import { Card } from "../../_components/card";
-
-type Habit = {
-  id: number;
-  title: string;
-  description: string;
-  recordsCount: number;
-};
-
-type RecordItem = {
-  id: number;
-  habitId: number;
-  content: string | null;
-  imageUrl: string | null;
-  recordDate: string;
-  level: number | null;
-};
 
 type LoadError = {
   isNotFound: boolean;
@@ -34,8 +19,8 @@ type LoadError = {
 
 export default function HabitDetailPage() {
   const { habitId } = useParams<{ habitId: string }>();
-  const [habit, setHabit] = useState<Habit | null>(null);
-  const [records, setRecords] = useState<RecordItem[]>([]);
+  const [habit, setHabit] = useState<HabitResponse | null>(null);
+  const [records, setRecords] = useState<RecordResponse[]>([]);
   const [loadError, setLoadError] = useState<LoadError | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
@@ -49,11 +34,11 @@ export default function HabitDetailPage() {
         const token = requireAccessToken();
 
         const [habitResponse, recordsResponse] = await Promise.all([
-          apiFetch<Habit>(`/me/habits/${habitId}`, {
+          apiFetch<HabitResponse>(`/me/habits/${habitId}`, {
             token,
             signal: controller.signal,
           }),
-          apiFetch<RecordItem[]>(`/me/habits/${habitId}/records`, {
+          apiFetch<RecordResponse[]>(`/me/habits/${habitId}/records`, {
             token,
             signal: controller.signal,
           }),
@@ -158,7 +143,7 @@ export default function HabitDetailPage() {
   );
 }
 
-function RecordCard({ record }: { record: RecordItem }) {
+function RecordCard({ record }: { record: RecordResponse }) {
   const level = record.level ?? 0;
 
   return (

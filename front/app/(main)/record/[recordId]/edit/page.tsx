@@ -9,23 +9,15 @@ import { apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
-import { RecordForm, type RecordFormSubmission, type RecordFormValue, DEFAULT_LEVEL, type HabitOption } from "../../_components/record-form";
-
-type RecordItem = {
-  id: number;
-  habitId: number;
-  content: string | null;
-  imageUrl: string | null;
-  recordDate: string;
-  level: number | null;
-};
+import type { HabitResponse, RecordResponse } from "@/types/api";
+import { RecordForm, type RecordFormSubmission, type RecordFormValue, DEFAULT_LEVEL } from "../../_components/record-form";
 
 export default function EditRecordPage() {
   const { recordId } = useParams<{ recordId: string }>();
   const router = useRouter();
-  const [record, setRecord] = useState<RecordItem | null>(null);
+  const [record, setRecord] = useState<RecordResponse | null>(null);
   const [loadError, setLoadError] = useState<PageLoadError | null>(null);
-  const [habits, setHabits] = useState<HabitOption[]>([]);
+  const [habits, setHabits] = useState<HabitResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,11 +27,11 @@ export default function EditRecordPage() {
       try {
         const token = requireAccessToken();
         const [fetchedRecord, fetchedHabits] = await Promise.all([
-          apiFetch<RecordItem>(`/me/records/${recordId}`, {
+          apiFetch<RecordResponse>(`/me/records/${recordId}`, {
             token,
             signal: controller.signal,
           }),
-          apiFetch<HabitOption[]>("/me/habits", {
+          apiFetch<HabitResponse[]>("/me/habits", {
             token,
             signal: controller.signal,
           }),

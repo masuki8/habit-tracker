@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { ErrorMessage } from "@/components/ui/error-message";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
 import { Card } from "./_components/card";
@@ -12,6 +12,7 @@ import {
   TwoWeekRecordCalendar,
   type DailyRecord,
 } from "./_components/two-week-record-calendar";
+import { ErrorScreen } from "@/components/ui/error-screen";
 type Habit = {
   id: number;
   title: string;
@@ -57,11 +58,11 @@ export default function Home() {
   }, []);
 
   if (isLoading) {
-    return <p role="status">習慣を読み込んでいます...</p>;
+    return <LoadingScreen message="習慣を読み込んでいます..." />;
   }
 
   if (error) {
-    return <ErrorMessage>{error}</ErrorMessage>;
+    return <ErrorScreen message={error} />;
   }
 
   if (habits.length === 0) {

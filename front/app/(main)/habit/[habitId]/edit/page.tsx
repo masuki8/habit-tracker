@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { ErrorMessage } from "@/components/ui/error-message";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 import { FormCard } from "@/components/ui/form-card";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
@@ -71,7 +72,7 @@ export default function EditHabitPage() {
     }
   }
 
-  if (isLoading) return <p role="status">習慣を読み込んでいます...</p>;
+  if (isLoading) return <LoadingScreen message="習慣を読み込んでいます..." />;
   if (!value) return <ErrorMessage>{error || "習慣が見つかりませんでした。"}</ErrorMessage>;
 
   return (

@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { ErrorMessage } from "@/components/ui/error-message";
-import { apiFetch } from "@/lib/api";
+import { ErrorScreen } from "@/components/ui/error-screen";
+import { LoadingScreen } from "@/components/ui/loading-screen";
+import { ApiError, apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
 import { Card } from "../../_components/card";
 
@@ -26,18 +27,25 @@ type RecordItem = {
   level: number | null;
 };
 
+type LoadError = {
+  isNotFound: boolean;
+  message: string;
+};
+
 export default function HabitDetailPage() {
   const { habitId } = useParams<{ habitId: string }>();
   const [habit, setHabit] = useState<Habit | null>(null);
   const [records, setRecords] = useState<RecordItem[]>([]);
-  const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState<LoadError | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function fetchHabitDetail() {
       try {
+        setLoadError(null);
         const token = getAccessToken();
         if (!token) throw new Error("認証情報を取得できませんでした。");
 
@@ -61,11 +69,14 @@ export default function HabitDetailPage() {
         );
       } catch (requestError) {
         if (controller.signal.aborted) return;
-        setError(
-          requestError instanceof Error && requestError.message
-            ? requestError.message
-            : "習慣の詳細を取得できませんでした。",
-        );
+        setLoadError({
+          isNotFound:
+            requestError instanceof ApiError && requestError.status === 404,
+          message:
+            requestError instanceof Error && requestError.message
+              ? requestError.message
+              : "習慣の詳細を取得できませんでした。",
+        });
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
       }
@@ -73,11 +84,28 @@ export default function HabitDetailPage() {
 
     fetchHabitDetail();
     return () => controller.abort();
-  }, [habitId]);
+  }, [habitId, retryCount]);
 
-  if (isLoading) return <p role="status">習慣を読み込んでいます...</p>;
-  if (error) return <ErrorMessage>{error}</ErrorMessage>;
-  if (!habit) return <ErrorMessage>習慣が見つかりませんでした。</ErrorMessage>;
+  if (isLoading) return <LoadingScreen message="習慣を読み込んでいます..." />;
+  if (loadError?.isNotFound || !habit) {
+    return (
+      <ErrorScreen
+        title="習慣が見つかりません"
+        message="指定された習慣は存在しないか、閲覧する権限がありません。"
+      />
+    );
+  }
+  if (loadError) {
+    return (
+      <ErrorScreen
+        message={loadError.message}
+        onRetry={() => {
+          setIsLoading(true);
+          setRetryCount((count) => count + 1);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">

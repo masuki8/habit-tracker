@@ -8,6 +8,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { FormCard } from "@/components/ui/form-card";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
@@ -72,7 +73,7 @@ export default function CreateRecordPage() {
     }
   }
 
-  if (isLoading) return <p role="status">習慣を読み込んでいます...</p>;
+  if (isLoading) return <LoadingScreen message="習慣を読み込んでいます..." />;
 
   return (
     <FormCard className="mx-auto w-full max-w-7xl">

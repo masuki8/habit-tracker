@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import Header from "@/components/header";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 import { useSession } from "@/hooks/use-session";
 import { clearSession } from "@/lib/auth-session";
 import SideNav from "./_components/sidenav";
@@ -24,11 +25,7 @@ export default function MainLayout({
   }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    return (
-      <div className="flex flex-1 items-center justify-center" role="status">
-        <span className="text-sm text-gray-500">認証情報を確認しています...</span>
-      </div>
-    );
+    return <LoadingScreen message="認証情報を確認しています..." />;
   }
 
   return (

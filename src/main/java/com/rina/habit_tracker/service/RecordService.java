@@ -32,12 +32,6 @@ public class RecordService {
         this.habitRepository = habitRepository;
     }
 
-    public List<RecordResponse> getAllRecords() {
-        return recordRepository.findAll().stream()
-                .map(this::mapToRecordResponse)
-                .collect(Collectors.toList());
-    }
-
     public List<RecordResponse> getHabitRecords(Long habitId, Long userId) {
         if (habitRepository.findByIdAndUserId(habitId, userId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Habit not found");
@@ -52,7 +46,7 @@ public class RecordService {
     public RecordResponse getRecordById(Long recordId, Long userId) {
         return recordRepository.findByIdAndHabitUserId(recordId, userId)
                 .map(this::mapToRecordResponse)
-                .orElseThrow(() -> new IllegalArgumentException("Record not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Record not found"));
     }
 
     public RecordResponse createRecord(Long userId, CreateRecordRequest request) {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 import { ErrorMessage } from "@/components/ui/error-message";
 import { apiFetch } from "@/lib/api";
@@ -10,8 +12,6 @@ import {
   TwoWeekRecordCalendar,
   type DailyRecord,
 } from "./_components/two-week-record-calendar";
-import Link from "next/link";
-
 type Habit = {
   id: number;
   title: string;
@@ -66,13 +66,19 @@ export default function Home() {
 
   if (habits.length === 0) {
     return (
-      <p className="text-sm text-gray-600">登録された習慣はありません。</p>
+      <div className="rounded-lg bg-surface p-8 text-center">
+        <p className="text-sm text-gray-600">登録された習慣はありません。</p>
+        <CreateHabitLink className="mt-4" />
+      </div>
     );
   }
 
   return (
     <div className="w-full grid grid-cols-[2fr_1fr] gap-8">
-      <div className="w-full grid gap-4">
+      <div className="grid w-full gap-4">
+        <div className="flex justify-end">
+          <CreateHabitLink />
+        </div>
         {habits.map((habit) => (
           <HabitCard key={habit.id} habit={habit} />
         ))}
@@ -87,7 +93,6 @@ export default function Home() {
 function HabitCard({ habit }: { habit: Habit }) {
   return (
     <Card className="flex gap-4">
-      <div className="shrink-0">icon</div>
       <div className="grow">
         <Link href={`/habit/${habit.id}`}>
           <h2>{habit.title}</h2>
@@ -103,5 +108,17 @@ function HabitCard({ habit }: { habit: Habit }) {
         <Link href={`/record?habitId=${habit.id}`}>記録する</Link>
       </div>
     </Card>
+  );
+}
+
+function CreateHabitLink({ className = "" }: { className?: string }) {
+  return (
+    <Link
+      href="/habit/create"
+      className={`inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-text transition hover:bg-primary-hover ${className}`}
+    >
+      <Plus className="size-5" aria-hidden="true" />
+      習慣を追加
+    </Link>
   );
 }

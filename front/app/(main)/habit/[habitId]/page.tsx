@@ -92,13 +92,22 @@ export default function HabitDetailPage() {
               記録数：{habit.recordsCount}件
             </p>
           </div>
-          <Link
-            href={`/record?habitId=${habit.id}`}
-            className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-text transition hover:bg-primary-hover"
-          >
-            <Plus className="size-5" aria-hidden="true" />
-            記録する
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/habit/${habit.id}/edit`}
+              aria-label="習慣を編集"
+              className="rounded-lg border border-gray-300 bg-white p-2 text-gray-600 transition hover:text-primary"
+            >
+              <Pencil className="size-5" aria-hidden="true" />
+            </Link>
+            <Link
+              href={`/record?habitId=${habit.id}`}
+              className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-text transition hover:bg-primary-hover"
+            >
+              <Plus className="size-5" aria-hidden="true" />
+              記録する
+            </Link>
+          </div>
         </div>
       </Card>
 

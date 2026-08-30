@@ -7,11 +7,13 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorScreen } from "@/components/ui/error-screen";
 import { FormCard } from "@/components/ui/form-card";
 import { LoadingScreen } from "@/components/ui/loading-screen";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
+import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
 import { DATE_FORMAT, DEFAULT_LEVEL, RecordFormFields } from "../../_components/record-form-fields";
 
 type RecordItem = {
@@ -30,7 +32,9 @@ export default function EditRecordPage() {
   const router = useRouter();
   const today = new Date();
   const [record, setRecord] = useState<RecordItem | null>(null);
-  const [habit, setHabit] = useState<Habit | null>(null);
+  const [loadError, setLoadError] = useState<PageLoadError | null>(null);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [selectedHabitId, setSelectedHabitId] = useState("");
   const [recordDate, setRecordDate] = useState(format(today, DATE_FORMAT));
   const [content, setContent] = useState("");
   const [level, setLevel] = useState(DEFAULT_LEVEL);
@@ -38,6 +42,7 @@ export default function EditRecordPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const maxDate = format(today, DATE_FORMAT);
+  const habit = habits.find((item) => String(item.id) === selectedHabitId);
   const minDate = habit?.createdAt.slice(0, 10) ?? maxDate;
 
   useEffect(() => {
@@ -47,15 +52,26 @@ export default function EditRecordPage() {
       try {
         const token = getAccessToken();
         if (!token) throw new Error("認証情報を取得できませんでした。");
-        const fetchedRecord = await apiFetch<RecordItem>(`/me/records/${recordId}`, { token, signal: controller.signal });
-        const fetchedHabit = await apiFetch<Habit>(`/me/habits/${fetchedRecord.habitId}`, { token, signal: controller.signal });
+        const [fetchedRecord, fetchedHabits] = await Promise.all([
+          apiFetch<RecordItem>(`/me/records/${recordId}`, {
+            token,
+            signal: controller.signal,
+          }),
+          apiFetch<Habit[]>("/me/habits", {
+            token,
+            signal: controller.signal,
+          }),
+        ]);
         setRecord(fetchedRecord);
-        setHabit(fetchedHabit);
+        setHabits(fetchedHabits);
+        setSelectedHabitId(String(fetchedRecord.habitId));
         setRecordDate(fetchedRecord.recordDate);
         setContent(fetchedRecord.content ?? "");
         setLevel(fetchedRecord.level ?? DEFAULT_LEVEL);
       } catch (requestError) {
-        if (!controller.signal.aborted) setError(getErrorMessage(requestError, "記録を取得できませんでした。"));
+        if (!controller.signal.aborted) {
+          setLoadError(toPageLoadError(requestError, "記録を取得できませんでした。"));
+        }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
       }
@@ -67,7 +83,7 @@ export default function EditRecordPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!record) return;
+    if (!record || !habit) return;
     setError("");
     setIsSubmitting(true);
 
@@ -77,10 +93,10 @@ export default function EditRecordPage() {
       await apiFetch(`/me/records/${record.id}`, {
         method: "PUT",
         token,
-        body: JSON.stringify({ habitId: record.habitId, recordDate, content: content.trim(), level, imageUrl: record.imageUrl }),
+        body: JSON.stringify({ habitId: habit.id, recordDate, content: content.trim(), level, imageUrl: record.imageUrl }),
       });
       saveFlashMessage({ message: "記録を更新しました。", variant: "success" });
-      router.push(`/habit/${record.habitId}`);
+      router.push(`/habit/${habit.id}`);
     } catch (requestError) {
       setError(getErrorMessage(requestError, "記録を更新できませんでした。"));
     } finally {
@@ -89,6 +105,12 @@ export default function EditRecordPage() {
   }
 
   if (isLoading) return <LoadingScreen message="記録を読み込んでいます..." />;
+  if (loadError?.isNotFound) {
+    return <ErrorScreen title="記録が見つかりません" message="指定された記録は存在しないか、編集する権限がありません。" />;
+  }
+  if (loadError || !record || !habit) {
+    return <ErrorScreen message={loadError?.message ?? "記録を取得できませんでした。"} />;
+  }
 
   return (
     <FormCard className="mx-auto w-full max-w-7xl">
@@ -106,7 +128,22 @@ export default function EditRecordPage() {
           maxDate={maxDate}
           content={content}
           level={level}
+          habitId={selectedHabitId}
+          habits={habits}
           onRecordDateChange={setRecordDate}
+          onHabitIdChange={(nextHabitId) => {
+            const nextHabit = habits.find(
+              (item) => String(item.id) === nextHabitId,
+            );
+            setSelectedHabitId(nextHabitId);
+            setError("");
+            if (
+              nextHabit &&
+              recordDate < nextHabit.createdAt.slice(0, 10)
+            ) {
+              setRecordDate(maxDate);
+            }
+          }}
           onContentChange={setContent}
           onLevelChange={setLevel}
         />

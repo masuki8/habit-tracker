@@ -3,12 +3,13 @@
 import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
-import { ErrorMessage } from "@/components/ui/error-message";
 import { LoadingScreen } from "@/components/ui/loading-screen";
+import { ErrorScreen } from "@/components/ui/error-screen";
 import { FormCard } from "@/components/ui/form-card";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
+import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
 import { HabitForm, type HabitFormValue } from "../../_components/habit-form";
 
 type HabitResponse = HabitFormValue & { id: number };
@@ -17,6 +18,7 @@ export default function EditHabitPage() {
   const { habitId } = useParams<{ habitId: string }>();
   const router = useRouter();
   const [value, setValue] = useState<HabitFormValue | null>(null);
+  const [loadError, setLoadError] = useState<PageLoadError | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +40,7 @@ export default function EditHabitPage() {
         });
       } catch (requestError) {
         if (!controller.signal.aborted) {
-          setError(requestError instanceof Error ? requestError.message : "習慣を取得できませんでした。");
+          setLoadError(toPageLoadError(requestError, "習慣を取得できませんでした。"));
         }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false);
@@ -73,7 +75,12 @@ export default function EditHabitPage() {
   }
 
   if (isLoading) return <LoadingScreen message="習慣を読み込んでいます..." />;
-  if (!value) return <ErrorMessage>{error || "習慣が見つかりませんでした。"}</ErrorMessage>;
+  if (loadError?.isNotFound) {
+    return <ErrorScreen title="習慣が見つかりません" message="指定された習慣は存在しないか、編集する権限がありません。" />;
+  }
+  if (loadError || !value) {
+    return <ErrorScreen message={loadError?.message ?? "習慣を取得できませんでした。"} />;
+  }
 
   return (
     <FormCard className="mx-auto w-full max-w-3xl">

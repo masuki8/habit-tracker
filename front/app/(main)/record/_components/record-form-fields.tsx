@@ -15,17 +15,21 @@ type RecordFormFieldsProps = {
   maxDate: string;
   content: string;
   level: number;
+  habitId: string;
+  habits: HabitOption[];
   onRecordDateChange: (date: string) => void;
   onContentChange: (content: string) => void;
+  onHabitIdChange: (habitId: string) => void;
   onLevelChange: (level: number) => void;
 };
 
 export function RecordFormFields({
-  recordDate, minDate, maxDate, content, level,
-  onRecordDateChange, onContentChange, onLevelChange,
+  recordDate, minDate, maxDate, content, level, habitId, habits,
+  onRecordDateChange, onContentChange, onHabitIdChange, onLevelChange,
 }: RecordFormFieldsProps) {
   return (
     <>
+      <HabitSelector habits={habits} value={habitId} onChange={onHabitIdChange} />
       <RecordDatePicker value={recordDate} min={minDate} max={maxDate} onChange={onRecordDateChange} />
       <LevelPicker value={level} onChange={onLevelChange} />
       <Textarea
@@ -97,5 +101,31 @@ function LevelPicker({ value, onChange }: { value: number; onChange: (level: num
         ))}
       </div>
     </fieldset>
+  );
+}
+
+type HabitOption = {
+  id: number;
+  title: string;
+};
+
+function HabitSelector({ habits, value, onChange }: { habits: HabitOption[]; value: string; onChange: (habitId: string) => void }) {
+  return (
+    <div className="space-y-2">
+      <select
+        id="habit-select"
+        className="form-control"
+        required
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        <option value="">習慣を選択してください</option>
+        {habits.map((habit) => (
+          <option key={habit.id} value={habit.id}>
+            {habit.title}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }

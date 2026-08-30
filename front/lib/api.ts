@@ -8,6 +8,7 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    public readonly code?: string,
   ) {
     super(message);
     this.name = "ApiError";
@@ -32,10 +33,12 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   });
 
   if (!response.ok) {
-    const message = await response.text();
+    const responseBody = await response.text();
+    const errorBody = parseErrorBody(responseBody);
     throw new ApiError(
       response.status,
-      message || `API request failed (${response.status})`
+      errorBody.message || `API request failed (${response.status})`,
+      errorBody.code,
     );
   }
 
@@ -44,4 +47,22 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   }
 
   return response.json() as Promise<T>;
+}
+
+function parseErrorBody(responseBody: string): { code?: string; message: string } {
+  if (!responseBody) return { message: "" };
+
+  try {
+    const parsed = JSON.parse(responseBody) as {
+      code?: string;
+      message?: string;
+      detail?: string;
+    };
+    return {
+      code: parsed.code,
+      message: parsed.message ?? parsed.detail ?? responseBody,
+    };
+  } catch {
+    return { message: responseBody };
+  }
 }

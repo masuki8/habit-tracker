@@ -11,12 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rina.habit_tracker.dto.request.CreateUserRequest;
 import com.rina.habit_tracker.dto.request.UpdateUserRequest;
 import com.rina.habit_tracker.dto.response.HabitResponse;
+import com.rina.habit_tracker.dto.response.AccountIdAvailabilityResponse;
 import com.rina.habit_tracker.dto.response.RecordResponse;
 import com.rina.habit_tracker.dto.response.UserResponse;
 import com.rina.habit_tracker.security.AuthenticatedUser;
@@ -49,6 +51,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
         return userService.createUser(request);
+    }
+
+    @GetMapping("/account-id-availability")
+    public AccountIdAvailabilityResponse getAccountIdAvailability(
+            @RequestParam String accountId) {
+        return new AccountIdAvailabilityResponse(userService.isAccountIdAvailable(accountId));
     }
 
     @PutMapping("/{userId}")

@@ -9,4 +9,5 @@ import com.rina.habit_tracker.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
+    Optional<User> findByAccountId(String accountId);
 }

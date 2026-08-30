@@ -9,24 +9,35 @@ import { FormCard } from "@/components/ui/form-card";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AccountIdStatusMessage } from "@/components/account-id-status-message";
+import { useAccountIdAvailability } from "@/hooks/use-account-id-availability";
+import { ACCOUNT_ID_MAX_LENGTH, ACCOUNT_ID_MIN_LENGTH } from "@/lib/account-id";
 import { ApiError, apiFetch } from "@/lib/api";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { saveLoginEmail } from "@/lib/login-email";
 
 type UserResponse = {
   id: number;
+  accountId: string;
   name: string;
   email: string;
+  lastLoginAt: string | null;
 };
 
 export default function SignUp() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [accountId, setAccountId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { normalizedAccountId, status: accountIdStatus } =
+    useAccountIdAvailability({
+      accountId,
+      endpoint: "/users/account-id-availability",
+    });
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,6 +45,11 @@ export default function SignUp() {
 
     if (name.trim().length < 2) {
       setError("名前は2文字以上で入力してください。");
+      return;
+    }
+
+    if (accountIdStatus !== "available") {
+      setError("使用可能なアカウントIDを入力してください。");
       return;
     }
 
@@ -55,6 +71,7 @@ export default function SignUp() {
         method: "POST",
         body: JSON.stringify({
           name: name.trim(),
+          accountId: normalizedAccountId,
           email: trimmedEmail,
           password,
         }),
@@ -66,15 +83,20 @@ export default function SignUp() {
       saveLoginEmail(trimmedEmail);
       router.push("/login");
     } catch (requestError) {
-      // Emailがすでに登録済の場合
       if (requestError instanceof ApiError && requestError.status === 409) {
-        saveFlashMessage({
-          message: "このメールアドレスは登録済みです。ログインしてください。",
-          variant: "info",
-        });
-        saveLoginEmail(trimmedEmail);
-        router.push("/login");
-        return;
+        if (requestError.code === "EMAIL_ALREADY_REGISTERED") {
+          saveFlashMessage({
+            message: "このメールアドレスは登録済みです。ログインしてください。",
+            variant: "info",
+          });
+          saveLoginEmail(trimmedEmail);
+          router.push("/login");
+          return;
+        }
+        if (requestError.code === "ACCOUNT_ID_ALREADY_REGISTERED") {
+          setError("このアカウントIDはすでに使用されています。");
+          return;
+        }
       }
 
       setError(
@@ -108,6 +130,25 @@ export default function SignUp() {
               value={name}
               onChange={(event) => setName(event.target.value)}
             />
+          </div>
+          <div>
+            <Label htmlFor="account-id">アカウントID</Label>
+            <Input
+              id="account-id"
+              name="accountId"
+              type="text"
+              autoComplete="username"
+              placeholder="アカウントID"
+              minLength={ACCOUNT_ID_MIN_LENGTH}
+              maxLength={ACCOUNT_ID_MAX_LENGTH}
+              required
+              aria-describedby="account-id-status"
+              value={accountId}
+              onChange={(event) =>
+                setAccountId(event.target.value.toLowerCase())
+              }
+            />
+            <AccountIdStatusMessage status={accountIdStatus} />
           </div>
           <div>
             <Label htmlFor="email">メールアドレス</Label>
@@ -157,6 +198,7 @@ export default function SignUp() {
           <Button
             className="mt-8 ml-auto block"
             type="submit"
+            disabled={accountIdStatus !== "available"}
             isLoading={isSubmitting}
             loadingLabel="アカウントを作成中"
           >

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rina.habit_tracker.dto.request.LoginRequest;
 import com.rina.habit_tracker.dto.response.LoginResponse;
 import com.rina.habit_tracker.security.JwtService;
+import com.rina.habit_tracker.service.UserService;
 
 import jakarta.validation.Valid;
 
@@ -20,16 +21,19 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken.unauthenticated(request.email(), request.password()));
+        userService.recordSuccessfulLogin(authentication.getName());
         String token = jwtService.generateToken(authentication.getName());
         return new LoginResponse(token, "Bearer", jwtService.getExpirationSeconds());
     }

@@ -20,8 +20,9 @@ class UserServiceTest {
     @Test
     void shouldPersistNameWhenCreatingUser() {
         CreateUserRequest request = new CreateUserRequest(
-            "Test User",
             "service@example.com",
+            "service_user",
+            "Test User",
             "password123"
         );
 

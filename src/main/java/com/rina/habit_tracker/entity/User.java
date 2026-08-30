@@ -30,6 +30,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true, length = 30)
+    private String accountId;
+
     @Column(nullable = false)
     private String password;
 
@@ -40,4 +43,7 @@ public class User {
     @UpdateTimestamp
     @Column(nullable = false)
     private Instant updatedAt;
+
+    @Column
+    private Instant lastLoginAt;
 }

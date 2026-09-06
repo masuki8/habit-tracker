@@ -8,11 +8,13 @@ import {
   Clipboard,
   Flame,
 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorScreen } from "@/components/ui/error-screen";
 import { FormCard } from "@/components/ui/form-card";
+import { LoadingScreen } from "@/components/ui/loading-screen";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import type { HabitResponse, TemplateResponse } from "@/types/api";
@@ -38,7 +40,6 @@ export type RecordFormSubmission = Omit<RecordFormValue, "habitId"> & {
 
 type RecordFormProps = {
   mode: "create" | "edit";
-  habits: HabitResponse[];
   initialValue: RecordFormValue;
   onSubmit: (value: RecordFormSubmission) => Promise<void>;
 };
@@ -56,17 +57,47 @@ const COPY = {
 
 export function RecordForm({
   mode,
-  habits,
   initialValue,
   onSubmit,
 }: RecordFormProps) {
+  const [habits, setHabits] = useState<HabitResponse[]>([]);
   const [value, setValue] = useState(initialValue);
+  const [loadError, setLoadError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const today = format(new Date(), DATE_FORMAT);
   const habit = habits.find((item) => String(item.id) === value.habitId);
   const minDate = habit?.createdAt.slice(0, 10) ?? today;
   const copy = COPY[mode];
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchHabits() {
+      try {
+        const token = requireAccessToken();
+        const fetchedHabits = await apiFetch<HabitResponse[]>("/me/habits", {
+          token,
+          signal: controller.signal,
+        });
+        setHabits(fetchedHabits);
+      } catch (requestError) {
+        if (controller.signal.aborted) return;
+
+        setLoadError(
+          requestError instanceof Error && requestError.message
+            ? requestError.message
+            : "習慣を取得できませんでした。",
+        );
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
+      }
+    }
+
+    fetchHabits();
+    return () => controller.abort();
+  }, []);
 
   function update(patch: Partial<RecordFormValue>) {
     setValue((current) => ({ ...current, ...patch }));
@@ -142,6 +173,18 @@ export function RecordForm({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (isLoading) {
+    return <LoadingScreen message="習慣を読み込んでいます..." />;
+  }
+
+  if (loadError) {
+    return <ErrorScreen message={loadError} />;
+  }
+
+  if (mode === "edit" && !habit) {
+    return <ErrorScreen message="記録に紐づく習慣を取得できませんでした。" />;
   }
 
   return (

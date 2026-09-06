@@ -9,7 +9,7 @@ import { apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { type PageLoadError, toPageLoadError } from "@/lib/page-load-error";
-import type { HabitResponse, RecordResponse } from "@/types/api";
+import type { RecordResponse } from "@/types/api";
 import { RecordForm, type RecordFormSubmission, type RecordFormValue, DEFAULT_LEVEL } from "../../_components/record-form";
 
 export default function EditRecordPage() {
@@ -17,7 +17,6 @@ export default function EditRecordPage() {
   const router = useRouter();
   const [record, setRecord] = useState<RecordResponse | null>(null);
   const [loadError, setLoadError] = useState<PageLoadError | null>(null);
-  const [habits, setHabits] = useState<HabitResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,18 +25,14 @@ export default function EditRecordPage() {
     async function fetchRecord() {
       try {
         const token = requireAccessToken();
-        const [fetchedRecord, fetchedHabits] = await Promise.all([
-          apiFetch<RecordResponse>(`/me/records/${recordId}`, {
+        const fetchedRecord = await apiFetch<RecordResponse>(
+          `/me/records/${recordId}`,
+          {
             token,
             signal: controller.signal,
-          }),
-          apiFetch<HabitResponse[]>("/me/habits", {
-            token,
-            signal: controller.signal,
-          }),
-        ]);
+          },
+        );
         setRecord(fetchedRecord);
-        setHabits(fetchedHabits);
       } catch (requestError) {
         if (!controller.signal.aborted) {
           setLoadError(toPageLoadError(requestError, "記録を取得できませんでした。"));
@@ -67,8 +62,7 @@ export default function EditRecordPage() {
   if (loadError?.isNotFound) {
     return <ErrorScreen title="記録が見つかりません" message="指定された記録は存在しないか、編集する権限がありません。" />;
   }
-  const habitExists = record && habits.some((habit) => habit.id === record.habitId);
-  if (loadError || !record || !habitExists) {
+  if (loadError || !record) {
     return <ErrorScreen message={loadError?.message ?? "記録を取得できませんでした。"} />;
   }
 
@@ -80,5 +74,5 @@ export default function EditRecordPage() {
     imageUrl: record.imageUrl,
   };
 
-  return <RecordForm mode="edit" habits={habits} initialValue={initialValue} onSubmit={updateRecord} />;
+  return <RecordForm mode="edit" initialValue={initialValue} onSubmit={updateRecord} />;
 }

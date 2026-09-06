@@ -11,6 +11,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
 import type { HabitResponse, RecordResponse } from "@/types/api";
 import { Card } from "../../_components/card";
+import { MonthlyRecordCalendar } from "../../_components/monthly-record-calendar";
 
 type LoadError = {
   isNotFound: boolean;
@@ -104,6 +105,7 @@ export default function HabitDetailPage() {
               記録数：{habit.recordsCount}件
             </p>
           </div>
+          <MonthlyRecordCalendar habitId={habit.id} />
           <div className="flex items-center gap-2">
             <Link
               href={`/habit/${habit.id}/edit`}

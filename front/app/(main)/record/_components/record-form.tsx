@@ -1,7 +1,13 @@
 "use client";
 
 import { addDays, format, parseISO } from "date-fns";
-import { Check, ChevronLeft, ChevronRight, Flame } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clipboard,
+  Flame,
+} from "lucide-react";
 import { FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -9,7 +15,10 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { FormCard } from "@/components/ui/form-card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import type { HabitResponse } from "@/types/api";
+import type { HabitResponse, TemplateResponse } from "@/types/api";
+import { requireAccessToken } from "@/lib/auth-session";
+import { apiFetch } from "@/lib/api";
+import { saveFlashMessage } from "@/lib/flash-message";
 
 export const DATE_FORMAT = "yyyy-MM-dd";
 export const DEFAULT_LEVEL = 3;
@@ -75,6 +84,38 @@ export function RecordForm({
           ? today
           : value.recordDate,
     });
+  }
+
+  async function applayTemplate() {
+    if (!habit) return;
+    if (value.content) {
+      alert("現在入力中の内容が破棄されますがよろしいですか？")
+    }
+    try {
+      const token = requireAccessToken();
+      const template = await apiFetch<TemplateResponse>(
+        `/me/habits/${habit.id}/template`,
+        {
+          method: "GET",
+          token,
+        },
+      );
+      update({
+        content: template ? template.content : value.content,
+      });
+      saveFlashMessage({
+        message: "テンプレートを適用しました。",
+        variant: "success",
+      });
+    } catch (requestError) {
+      saveFlashMessage({
+        message:
+          requestError instanceof Error
+            ? requestError.message
+            : "テンプレートのに失敗しました。",
+        variant: "error",
+      });
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -144,6 +185,10 @@ export function RecordForm({
           value={value.content}
           onChange={(event) => update({ content: event.target.value })}
         />
+        <Button type="button" className="float-right" onClick={applayTemplate}>
+          <Clipboard />
+        </Button>
+        <TemplateRegistor habit={habit} content={value.content} />
       </form>
     </FormCard>
   );
@@ -265,5 +310,59 @@ function HabitSelector({
         ))}
       </select>
     </div>
+  );
+}
+
+function TemplateRegistor({
+  habit,
+  content,
+}: {
+  habit: HabitResponse | undefined;
+  content: string;
+}) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  async function onClick() {
+    if (!habit || !content) return;
+    setIsSubmitting(true);
+    try {
+      const token = requireAccessToken();
+      const template = await apiFetch<TemplateResponse>(
+        `/me/habits/${habit.id}/template`,
+        {
+          method: "GET",
+          token,
+        },
+      );
+      await apiFetch(`/me/habits/${habit.id}/template`, {
+        method: template ? "PUT" : "POST",
+        token,
+        body: JSON.stringify({ content: content }),
+      });
+      saveFlashMessage({
+        message: "テンプレートを登録しました。",
+        variant: "success",
+      });
+    } catch (requestError) {
+      saveFlashMessage({
+        message:
+          requestError instanceof Error
+            ? requestError.message
+            : "テンプレートの登録に失敗しました。",
+        variant: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+  return (
+    <Button
+      variant="simple"
+      type="button"
+      disabled={!habit || !content}
+      onClick={onClick}
+      isLoading={isSubmitting}
+    >
+      現在の内容をテンプレートとして登録する
+    </Button>
   );
 }

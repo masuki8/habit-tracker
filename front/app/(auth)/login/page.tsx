@@ -13,6 +13,7 @@ import { apiFetch } from "@/lib/api";
 import { saveSession } from "@/lib/auth-session";
 import { clearLoginEmail, getLoginEmail } from "@/lib/login-email";
 import type { LoginResponse } from "@/types/api";
+import { isDemo } from "@/lib/demo-mode";
 
 export default function Login() {
   const router = useRouter();
@@ -44,6 +45,19 @@ export default function Login() {
     } finally {
       setIsSubmitting(false);
       clearLoginEmail();
+    }
+  }
+
+  async function createDemoUser() {
+    try {
+      const response = await apiFetch<LoginResponse>("/auth/login/demo", {
+        method: "POST",
+      });
+      saveSession(response.accessToken, response.expiresIn);
+      router.replace("/");
+    } catch (requestError) {
+      const message = requestError instanceof Error ? requestError.message : "";
+      setError(message || "ログインできませんでした。もう一度お試しください。",);
     }
   }
 
@@ -94,10 +108,16 @@ export default function Login() {
               type="submit"
               isLoading={isSubmitting}
               loadingLabel="ログイン中"
+                disabled={isDemo()}
             >
               ログイン
             </Button>
           </form>
+          <div className="text-center">
+            <Button variant="simple" className="mt-10" onClick={createDemoUser}>
+              デモユーザーとして試す
+            </Button>
+          </div>
         </div>
       </FormCard>
       <p className="my-6 text-center text-sm text-gray-600">

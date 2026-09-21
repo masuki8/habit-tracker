@@ -13,6 +13,7 @@ import { apiFetch } from "@/lib/api";
 import { requireAccessToken } from "@/lib/auth-session";
 import { saveFlashMessage } from "@/lib/flash-message";
 import type { UserResponse } from "@/types/api";
+import { isDemo } from "@/lib/demo-mode";
 
 export default function SettingsPage() {
   const [token, setToken] = useState("");
@@ -124,7 +125,12 @@ export default function SettingsPage() {
           <Input id="settings-password-confirmation" type="password" autoComplete="new-password" minLength={6} value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} />
         </div>
         {error && <ErrorMessage>{error}</ErrorMessage>}
-        <Button className="ml-auto block" type="submit" isLoading={isSubmitting} loadingLabel="更新中">
+        {
+          isDemo() ? 
+          <ErrorMessage>デモアカウントはユーザー設定を変更できません。</ErrorMessage>
+          : ""
+        }
+        <Button className="ml-auto block" type="submit" isLoading={isSubmitting} loadingLabel="更新中" disabled={isDemo()}>
           設定を保存
         </Button>
       </form>

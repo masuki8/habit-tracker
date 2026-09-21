@@ -37,23 +37,24 @@ public class JwtService {
         this.expiration = Duration.ofMinutes(expirationMinutes);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(Long userId) {
         Instant now = Instant.now();
         return Jwts.builder()
-                .subject(email)
+                .subject(userId.toString())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(expiration)))
                 .signWith(signingKey)
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        return Jwts.parser()
+    public Long extractUserId(String token) {
+        String subject = Jwts.parser()
                 .verifyWith(signingKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+        return Long.valueOf(subject);
     }
 
     public long getExpirationSeconds() {

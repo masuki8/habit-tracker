@@ -16,6 +16,7 @@ import { ApiError, apiFetch } from "@/lib/api";
 import { saveFlashMessage } from "@/lib/flash-message";
 import { saveLoginEmail } from "@/lib/login-email";
 import type { UserResponse } from "@/types/api";
+import { isDemo } from "@/lib/demo-mode";
 
 export default function SignUp() {
   const router = useRouter();
@@ -194,7 +195,7 @@ export default function SignUp() {
           <Button
             className="mt-8 w-full"
             type="submit"
-            disabled={accountIdStatus !== "available"}
+            disabled={isDemo() || accountIdStatus !== "available"}
             isLoading={isSubmitting}
             loadingLabel="アカウントを作成中"
           >

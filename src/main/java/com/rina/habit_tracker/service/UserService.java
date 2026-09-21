@@ -105,8 +105,8 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public void recordSuccessfulLogin(String email) {
-        User user = userRepository.findByEmail(email)
+    public void recordSuccessfulLogin(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         user.setLastLoginAt(Instant.now());
         userRepository.save(user);

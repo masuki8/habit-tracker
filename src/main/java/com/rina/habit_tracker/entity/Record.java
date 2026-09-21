@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
@@ -30,6 +32,7 @@ public class Record {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "habit_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Habit habit;
 
     @Column(columnDefinition = "TEXT")

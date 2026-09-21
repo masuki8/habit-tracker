@@ -3,6 +3,8 @@ package com.rina.habit_tracker.entity;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
@@ -29,6 +31,7 @@ public class Template {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "habit_id", nullable = false, unique = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Habit habit;
 
     @Column(nullable = false, columnDefinition = "TEXT")

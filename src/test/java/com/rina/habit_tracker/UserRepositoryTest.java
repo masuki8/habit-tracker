@@ -21,12 +21,14 @@ class UserRepositoryTest{
         User user = new User();
         user.setName("Test User");
         user.setEmail("test@example.com");
+        user.setAccountId("test_user");
         user.setPassword("password123");
 
         User savedUser = userRepository.saveAndFlush(user);
 
         assertThat(savedUser.getId()).isNotNull();
         assertThat(savedUser.getEmail()).isEqualTo("test@example.com");
+        assertThat(savedUser.getAccountId()).isEqualTo("test_user");
         assertThat(savedUser.getPassword()).isEqualTo("password123");
         assertThat(savedUser.getCreatedAt()).isNotNull();
         assertThat(savedUser.getUpdatedAt()).isNotNull();

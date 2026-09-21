@@ -25,6 +25,7 @@ class HabitRepositoryTest{
         User user = new User();
         user.setName("Mission User");
         user.setEmail("mission-user@example.com");
+        user.setAccountId("mission_user");
         user.setPassword("password123");
         User savedUser = userRepository.saveAndFlush(user);
 

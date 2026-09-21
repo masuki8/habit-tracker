@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from 'lucide-react';
+import { X } from "lucide-react";
 
 import {
   clearFlashMessage,
@@ -40,7 +40,7 @@ export function Toast() {
 
   return (
     <div
-      className={`fixed left-4 right-4 top-24 z-50 flex items-start gap-3 rounded-lg px-5 py-4 shadow-sm sm:left-auto sm:right-5 sm:w-full sm:max-w-sm ${variantStyles[variant]}`}
+      className={`fixed left-4 right-4 top-24 z-50 flex items-start gap-3 rounded-2xl border px-5 py-4 shadow-lg sm:left-auto sm:right-5 sm:w-full sm:max-w-sm ${variantStyles[variant]}`}
       role={variant === "error" ? "alert" : "status"}
       aria-live={variant === "error" ? "assertive" : "polite"}
     >

@@ -55,17 +55,17 @@ const COPY = {
   },
 } as const;
 
-export function RecordForm({
-  mode,
-  initialValue,
-  onSubmit,
-}: RecordFormProps) {
+export function RecordForm({ mode, initialValue, onSubmit }: RecordFormProps) {
   const [habits, setHabits] = useState<HabitResponse[]>([]);
   const [value, setValue] = useState(initialValue);
   const [loadError, setLoadError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [template, setTemplate] = useState("");
+  const [isTemplateLoading, setIsTemplateLoading] = useState(
+    Boolean(initialValue.habitId),
+  );
   const today = format(new Date(), DATE_FORMAT);
   const habit = habits.find((item) => String(item.id) === value.habitId);
   const minDate = habit?.createdAt.slice(0, 10) ?? today;
@@ -99,6 +99,36 @@ export function RecordForm({
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    if (!value.habitId) return;
+
+    const controller = new AbortController();
+
+    async function fetchTemplate() {
+      setTemplate("");
+      setIsTemplateLoading(true);
+
+      try {
+        const token = requireAccessToken();
+        const response = await apiFetch<TemplateResponse>(
+          `/me/habits/${value.habitId}/template`,
+          {
+            token,
+            signal: controller.signal,
+          },
+        );
+        setTemplate(response.content);
+      } catch {
+        if (!controller.signal.aborted) setTemplate("");
+      } finally {
+        if (!controller.signal.aborted) setIsTemplateLoading(false);
+      }
+    }
+
+    fetchTemplate();
+    return () => controller.abort();
+  }, [value.habitId]);
+
   function update(patch: Partial<RecordFormValue>) {
     setValue((current) => ({ ...current, ...patch }));
   }
@@ -108,6 +138,8 @@ export function RecordForm({
     const nextMinDate = nextHabit?.createdAt.slice(0, 10);
 
     setError("");
+    setTemplate("");
+    setIsTemplateLoading(Boolean(habitId));
     update({
       habitId,
       recordDate:
@@ -117,36 +149,22 @@ export function RecordForm({
     });
   }
 
-  async function applayTemplate() {
-    if (!habit) return;
-    if (value.content) {
-      alert("現在入力中の内容が破棄されますがよろしいですか？")
+  function applyTemplate() {
+    if (!habit || !template) return;
+    if (
+      value.content &&
+      !window.confirm("現在入力中の内容が破棄されます。よろしいですか？")
+    ) {
+      return;
     }
-    try {
-      const token = requireAccessToken();
-      const template = await apiFetch<TemplateResponse>(
-        `/me/habits/${habit.id}/template`,
-        {
-          method: "GET",
-          token,
-        },
-      );
-      update({
-        content: template ? template.content : value.content,
-      });
-      saveFlashMessage({
-        message: "テンプレートを適用しました。",
-        variant: "success",
-      });
-    } catch (requestError) {
-      saveFlashMessage({
-        message:
-          requestError instanceof Error
-            ? requestError.message
-            : "テンプレートのに失敗しました。",
-        variant: "error",
-      });
-    }
+
+    update({
+      content: template,
+    });
+    saveFlashMessage({
+      message: "テンプレートを適用しました。",
+      variant: "success",
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -188,8 +206,8 @@ export function RecordForm({
   }
 
   return (
-    <FormCard className="mx-auto w-full max-w-7xl">
-      <form className="space-y-5" onSubmit={handleSubmit}>
+    <FormCard className="mx-auto w-full max-w-4xl">
+      <form className="space-y-6" onSubmit={handleSubmit}>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <div className="flex justify-between gap-3">
           <h2>
@@ -202,7 +220,10 @@ export function RecordForm({
             loadingLabel={`${copy.submitAction}中`}
             aria-label={`記録を${copy.submitAction}`}
           >
-            <Check aria-hidden="true" />
+            <span className="inline-flex items-center gap-2">
+              <Check className="size-4" aria-hidden="true" />
+              {copy.submitAction}
+            </span>
           </Button>
         </div>
         <HabitSelector
@@ -224,14 +245,29 @@ export function RecordForm({
           id="content"
           aria-label="記録内容"
           placeholder="今日の記録を書いてください"
-          className="h-100"
+          className="min-h-64"
           value={value.content}
           onChange={(event) => update({ content: event.target.value })}
         />
-        <Button type="button" className="float-right" onClick={applayTemplate}>
-          <Clipboard />
+        <Button
+          type="button"
+          className="ml-auto flex"
+          onClick={applyTemplate}
+          disabled={!habit || !template || isTemplateLoading}
+          isLoading={isTemplateLoading}
+          loadingLabel="テンプレートを確認中"
+          title={!template && !isTemplateLoading ? "登録済みのテンプレートがありません" : undefined}
+        >
+          <span className="inline-flex items-center gap-2">
+            <Clipboard />
+            テンプレートを適用する
+          </span>
         </Button>
-        <TemplateRegistor habit={habit} content={value.content} />
+        <TemplateRegistor
+          habit={habit}
+          content={value.content}
+          onSaved={setTemplate}
+        />
       </form>
     </FormCard>
   );
@@ -257,13 +293,13 @@ function RecordDatePicker({
   }
 
   return (
-    <div className="float-right flex items-center gap-1">
+    <div className="flex max-w-sm items-center gap-1 rounded-2xl bg-background p-2">
       <button
         type="button"
         aria-label="前の日"
         onClick={() => moveDate(-1)}
         disabled={value <= min}
-        className="p-2"
+        className="rounded-lg p-2 text-primary transition hover:bg-primary/10"
       >
         <ChevronLeft aria-hidden="true" />
       </button>
@@ -282,7 +318,7 @@ function RecordDatePicker({
         aria-label="次の日"
         onClick={() => moveDate(1)}
         disabled={value >= max}
-        className="p-2"
+        className="rounded-lg p-2 text-primary transition hover:bg-primary/10"
       >
         <ChevronRight aria-hidden="true" />
       </button>
@@ -300,9 +336,12 @@ function LevelPicker({
   return (
     <fieldset>
       <legend className="sr-only">達成レベル</legend>
-      <div className="flex gap-2">
+      <div className="flex w-fit gap-1 rounded-2xl bg-background p-2">
         {LEVELS.map((level) => (
-          <label key={level} className="cursor-pointer rounded p-1">
+          <label
+            key={level}
+            className="cursor-pointer rounded-lg p-1 transition hover:bg-white"
+          >
             <input
               className="sr-only"
               type="radio"
@@ -315,7 +354,7 @@ function LevelPicker({
             <Flame
               className={
                 level <= value
-                  ? "fill-orange-400 text-orange-400"
+                  ? "fill-secondary text-secondary"
                   : "text-gray-300"
               }
               aria-hidden="true"
@@ -359,9 +398,11 @@ function HabitSelector({
 function TemplateRegistor({
   habit,
   content,
+  onSaved,
 }: {
   habit: HabitResponse | undefined;
   content: string;
+  onSaved: (content: string) => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   async function onClick() {
@@ -385,6 +426,7 @@ function TemplateRegistor({
         message: "テンプレートを登録しました。",
         variant: "success",
       });
+      onSaved(content);
     } catch (requestError) {
       saveFlashMessage({
         message:
@@ -401,7 +443,7 @@ function TemplateRegistor({
     <Button
       variant="simple"
       type="button"
-      disabled={!habit || !content}
+      disabled={!habit || !content.trim()}
       onClick={onClick}
       isLoading={isSubmitting}
     >

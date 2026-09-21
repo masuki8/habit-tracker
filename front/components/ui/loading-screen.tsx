@@ -3,7 +3,7 @@ import { LoaderCircle } from "lucide-react";
 export function LoadingScreen({ message = "読み込んでいます..." }: { message?: string }) {
   return (
     <div
-      className="flex min-h-64 w-full flex-col items-center justify-center gap-4 rounded-lg bg-surface px-6 py-12 text-center"
+      className="flex min-h-64 w-full flex-col items-center justify-center gap-4 rounded-2xl border border-black/5 bg-surface px-6 py-12 text-center shadow-[0_8px_30px_rgba(29,29,29,0.04)]"
       role="status"
       aria-live="polite"
     >

@@ -1,34 +1,23 @@
-import Link from "next/link";
+import { NavigationLinks } from "@/components/navigation-links";
+import type { HabitResponse } from "@/types/api";
 
-export default function SideNav() {
+export default function SideNav({ habits }: { habits: HabitResponse[] }) {
   return (
-    <aside className="w-60 px-2 py-3 bg-primary rounded-r-md text-primary-text">
-      <h1 className="px-4 py-6">
-        Habit
-        <br />
-        Tracker
-      </h1>
-      <nav className="my-3">
-        <ul className="flex flex-col w-full gap-2">
-          <MenuItem name={'Home'} link={'/'} />
-          <MenuItem name={'Habits'} link={'/'} />
-          <MenuItem name={'Settings'} link={'/settings'} />
-        </ul>
-      </nav>
+    <aside className="hidden w-60 shrink-0 flex-col bg-primary px-3 py-5 text-primary-text lg:flex">
+      <div className="px-3 py-5">
+        <p className="brand-mark text-3xl text-primary-text">Habit Tracker</p>
+        <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.22em] text-primary-text/55">
+          Habit journal
+        </p>
+      </div>
+
+      <div className="mt-5 min-h-0 flex-1">
+        <NavigationLinks habits={habits} />
+      </div>
+
+      <div className="mt-5 rounded-2xl bg-black/10 p-4">
+        <p className="text-xs font-semibold">Keep going!</p>
+      </div>
     </aside>
-  );
-}
-
-
-type MenuItemProps = {
-  name: string;
-  link: string;
-};
-
-function MenuItem({name, link}: MenuItemProps) {
-  return (
-    <li className="hover:bg-primary-hover rounded-md px-3 py-2">
-      <Link href={link}>{name}</Link>
-    </li>
   );
 }

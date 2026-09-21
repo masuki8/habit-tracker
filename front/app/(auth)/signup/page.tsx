@@ -108,10 +108,10 @@ export default function SignUp() {
   }
 
   return (
-    <div className="px-6">
-      <FormCard className="w-lg max-w-lg">
+    <div className="relative w-full max-w-lg">
+      <FormCard className="w-full">
         <div className="mb-8 text-center">
-          <h2>サインイン</h2>
+          <h2>新規登録</h2>
           <hr className="title-border" />
         </div>
         <form className="space-y-5" onSubmit={handleSubmit} noValidate>
@@ -192,7 +192,7 @@ export default function SignUp() {
           {error && <ErrorMessage>{error}</ErrorMessage>}
 
           <Button
-            className="mt-8 ml-auto block"
+            className="mt-8 w-full"
             type="submit"
             disabled={accountIdStatus !== "available"}
             isLoading={isSubmitting}
@@ -206,7 +206,7 @@ export default function SignUp() {
         すでにアカウントをお持ちですか？{" "}
         <Link
           href="/login"
-          className="text-primary font-semibold hover:underline"
+          className="font-bold text-primary hover:text-primary-hover hover:underline"
         >
           ログイン
         </Link>

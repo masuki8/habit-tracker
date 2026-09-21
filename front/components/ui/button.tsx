@@ -11,8 +11,9 @@ type ButtonProps = ComponentProps<"button"> & {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "rounded-lg px-6 py-2.5 bg-primary text-primary-text font-semibold hover:bg-primary-hover",
-  simple: "rounded px-2 py-0.5 text-primary hover:text-gray-600",
+    "min-h-11 rounded-xl bg-primary px-6 py-2.5 font-bold text-primary-text shadow-sm hover:bg-primary-hover",
+  simple:
+    "rounded-lg px-2 py-1 font-semibold text-primary hover:bg-primary/10 hover:text-primary-hover",
 };
 
 export function Button({
@@ -26,7 +27,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`relative text-sm transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${variantStyles[variant]} ${className}`}
+      className={`relative text-sm transition focus:outline-none focus:ring-2 focus:ring-primary-light focus:ring-offset-2 ${variantStyles[variant]} ${className}`}
       aria-busy={isLoading || undefined}
       disabled={disabled || isLoading}
       {...props}

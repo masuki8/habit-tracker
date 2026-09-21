@@ -95,15 +95,18 @@ export default function SettingsPage() {
 
   return (
     <FormCard className="mx-auto w-full max-w-2xl">
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <h2>ユーザー設定</h2>
+      <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+        <div className="border-b border-black/5 pb-5">
+          <h2>ユーザー設定</h2>
+          <p className="mt-2 text-sm text-gray-500">プロフィールとログイン情報を管理します。</p>
+        </div>
         <div>
           <Label htmlFor="settings-name">ユーザー名</Label>
           <Input id="settings-name" minLength={2} required value={name} onChange={(event) => setName(event.target.value)} />
         </div>
         <div>
-          <p className="text-sm font-medium">アカウントID</p>
-          <p className="mt-1 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-gray-700">
+          <p className="text-sm font-bold text-ink-brown">アカウントID</p>
+          <p className="mt-2 rounded-xl border border-black/5 bg-background px-4 py-3 text-gray-600">
             @{accountId}
           </p>
           <p className="mt-1 text-xs text-gray-500">アカウントIDは変更できません</p>

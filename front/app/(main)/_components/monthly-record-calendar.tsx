@@ -78,7 +78,7 @@ export function MonthlyRecordCalendar({ habitId }: MonthlyCalendarProps) {
   }
 
   return (
-    <section className="w-fit" aria-label="月間記録カレンダー">
+    <section className="mx-auto w-fit" aria-label="月間記録カレンダー">
       <div className="mb-4 flex items-center justify-between">
         <button
           type="button"
@@ -112,7 +112,12 @@ export function MonthlyRecordCalendar({ habitId }: MonthlyCalendarProps) {
           const level = recordsByDate.get(recordDate) ?? 0;
           const isOutsideMonth = !isSameMonth(date, displayMonth);
           return (
-            <DayCell key={recordDate} recordDate={recordDate} level={level} />
+            <DayCell
+              key={recordDate}
+              recordDate={recordDate}
+              level={level}
+              isOutside={isOutsideMonth}
+            />
           );
         })}
       </div>

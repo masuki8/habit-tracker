@@ -74,7 +74,10 @@ export function HabitForm({ mode, initialValue, onSubmit }: HabitFormProps) {
             loadingLabel={`${copy.action}中`}
             aria-label={`習慣を${copy.submitAction}`}
           >
-            <Check aria-hidden="true" />
+            <span className="inline-flex items-center gap-2">
+              <Check className="size-4" aria-hidden="true" />
+              {copy.submitAction}
+            </span>
           </Button>
         </div>
 

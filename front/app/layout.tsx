@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Zen_Kaku_Gothic_New } from "next/font/google";
 import "./globals.css";
 import { Toast } from "@/components/toast";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const zenKakuGothic = Zen_Kaku_Gothic_New({
+  variable: "--font-zen-kaku-gothic",
+  weight: ["400", "500", "700", "900"],
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Habit Tracker",
-  description: "",
+  title: {
+    default: "Habit Tracker",
+    template: "%s | Habit Tracker",
+  },
+  description: "小さな習慣を積み重ねる習慣トラッカー",
 };
 
 export default function RootLayout({
@@ -24,11 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ja"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="h-screen flex flex-col">
+    <html lang="ja" className={`${zenKakuGothic.variable} h-full antialiased`}>
+      <body className="flex h-screen flex-col">
         <Toast />
         {children}
       </body>

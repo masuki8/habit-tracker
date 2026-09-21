@@ -32,17 +32,17 @@ export function TwoWeekRecordCalendar({ records }: TwoWeekRecordCalendarProps) {
   ];
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-7 gap-x-2 gap-y-2">
+    <div className="space-y-2">
+      <div className="grid grid-cols-7 gap-2">
         {WEEKDAYS.map((val, index) => (
-          <p key={index} className="text-[10px] text-gray-500 text-center">
+          <p key={index} className="text-center text-[10px] font-medium text-gray-400">
             {val}
           </p>
         ))}
       </div>
       {weeks.map((week, index) => (
         <div key={index}>
-          <div className="grid grid-cols-7 gap-x-2 gap-y-2">
+          <div className="grid grid-cols-7 gap-2">
             {week.map((day) => (
               <DayCell key={day.recordDate} recordDate={day.recordDate} level={day.level} />
             ))}

@@ -16,7 +16,7 @@ export function ErrorScreen({
 }: ErrorScreenProps) {
   return (
     <div
-      className="flex min-h-64 w-full flex-col items-center justify-center rounded-lg bg-surface px-6 py-12 text-center"
+      className="flex min-h-64 w-full flex-col items-center justify-center rounded-2xl border border-black/5 bg-surface px-6 py-12 text-center shadow-[0_8px_30px_rgba(29,29,29,0.04)]"
       role="alert"
     >
       <div className="flex size-14 items-center justify-center rounded-full bg-red-50 text-red-600">

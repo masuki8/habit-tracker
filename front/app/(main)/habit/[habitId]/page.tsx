@@ -48,8 +48,7 @@ export default function HabitDetailPage() {
         setHabit(habitResponse);
         setRecords(
           recordsResponse.toSorted(
-            (a, b) =>
-              b.recordDate.localeCompare(a.recordDate) || b.id - a.id,
+            (a, b) => b.recordDate.localeCompare(a.recordDate) || b.id - a.id,
           ),
         );
       } catch (requestError) {
@@ -95,40 +94,40 @@ export default function HabitDetailPage() {
   return (
     <div className="space-y-6">
       <Card>
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+          <div className="min-w-0">
+            <Link
+              href={`/habit/${habit.id}/edit`}
+              aria-label="習慣を編集"
+              className="float-right grid size-11 place-items-center rounded-lg border  border-gray-300 bg-surface text-gray-500 transition hover:border-primary hover:text-primary"
+            >
+              <Pencil className="size-5" aria-hidden="true" />
+            </Link>
             <h2>{habit.title}</h2>
             {habit.description && (
               <p className="mt-2 text-sm text-gray-600">{habit.description}</p>
             )}
-            <p className="mt-4 text-sm text-gray-500">
-              記録数：{habit.recordsCount}件
+            <p className="mt-5 inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+              記録数 {habit.recordsCount}件
             </p>
           </div>
-          <MonthlyRecordCalendar habitId={habit.id} />
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/habit/${habit.id}/edit`}
-              aria-label="習慣を編集"
-              className="rounded-lg border border-gray-300 bg-white p-2 text-gray-600 transition hover:text-primary"
-            >
-              <Pencil className="size-5" aria-hidden="true" />
-            </Link>
-            <Link
-              href={`/record/create?habitId=${habit.id}`}
-              className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-text transition hover:bg-primary-hover"
-            >
-              <Plus className="size-5" aria-hidden="true" />
-              記録する
-            </Link>
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+            <MonthlyRecordCalendar habitId={habit.id} />
           </div>
         </div>
       </Card>
 
       <section aria-labelledby="record-list-title">
-        <h2 id="record-list-title" className="mb-3">
-          記録一覧
-        </h2>
+        <div className="flex justify-between items-end mb-3">
+          <h2 id="record-list-title">記録一覧</h2>
+          <Link
+            href={`/record/create?habitId=${habit.id}`}
+            className="inline-flex h-11 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-text shadow-sm transition hover:bg-primary-hover"
+          >
+            <Plus className="size-5" aria-hidden="true" />
+            記録する
+          </Link>
+        </div>
         {records.length === 0 ? (
           <Card>
             <p className="text-sm text-gray-500">まだ記録がありません。</p>
@@ -149,7 +148,7 @@ function RecordCard({ record }: { record: RecordResponse }) {
   const level = record.level ?? 0;
 
   return (
-    <Card>
+    <Card className="transition hover:-translate-y-0.5 hover:shadow-[0_12px_36px_rgba(29,29,29,0.07)]">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <time className="text-sm font-semibold" dateTime={record.recordDate}>
@@ -164,7 +163,7 @@ function RecordCard({ record }: { record: RecordResponse }) {
             {Array.from({ length: level }, (_, index) => (
               <Flame
                 key={index}
-                className="size-5 fill-orange-400 text-orange-400"
+                className="size-5 fill-secondary text-secondary"
                 aria-hidden="true"
               />
             ))}

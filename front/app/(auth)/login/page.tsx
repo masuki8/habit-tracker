@@ -48,9 +48,9 @@ export default function Login() {
   }
 
   return (
-    <div className="px-6">
-      <FormCard className="w-lg max-w-lg">
-        <div className="w-full max-w-sm">
+    <div className="relative w-full max-w-lg">
+      <FormCard className="w-full">
+        <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 text-center">
             <h2>ログイン</h2>
             <hr className="title-border" />
@@ -90,7 +90,7 @@ export default function Login() {
             {error && <ErrorMessage>{error}</ErrorMessage>}
 
             <Button
-              className="mt-8 ml-auto block"
+              className="mt-8 w-full"
               type="submit"
               isLoading={isSubmitting}
               loadingLabel="ログイン中"
@@ -103,10 +103,10 @@ export default function Login() {
       <p className="my-6 text-center text-sm text-gray-600">
         アカウントをお持ちでないですか？{" "}
         <Link
-          className="text-primary font-semibold hover:underline"
+          className="font-bold text-primary hover:text-primary-hover hover:underline"
           href="/signup"
         >
-          サインイン
+          新規登録
         </Link>
       </p>
     </div>

@@ -6,6 +6,7 @@ target/
 .env
 .env.*
 !.env.example
+.DS_Store
 
 ### STS ###
 .apt_generated
